@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aiox/schema/apl.json",
+  "title": "Agent Plan Language (APL)",
+  "type": "object",
+  "required": ["goal", "capabilities", "steps"],
+  "additionalProperties": false,
+  "properties": {
+    "goal": { "type": "string", "minLength": 1 },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["fs.read", "fs.write", "proc.spawn", "net.get", "ocr.run", "table.extract", "model.call"]
+      },
+      "uniqueItems": true
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "triggers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": { "type": "string" },
+          "path": { "type": "string" },
+          "cron": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/step" }
+    },
+    "verify": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/verifyStep" }
+    },
+    "rollback": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rollbackStep" }
+    },
+    "_generated_at": { "type": "string" }
+  },
+
+  "$defs": {
+    "ioStringOrMap": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "object", "additionalProperties": true }
+      ]
+    },
+
+    "step": {
+      "type": "object",
+      "required": ["id", "op"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "op": {
+          "type": "string",
+          "enum": [
+            "load_csv",
+            "profile_schema",
+            "split_deterministic",
+            "train_linear",
+            "eval_metrics",
+            "emit_report",
+            "build_cli",
+            "bundle_zip",
+            "guard"
+          ]
+        },
+        "in": { "$ref": "#/$defs/ioStringOrMap" },
+        "out": { "$ref": "#/$defs/ioStringOrMap" },
+        "args": { "type": "object", "additionalProperties": true },
+        "cond": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "op": { "const": "guard" } } },
+          "then": { "required": ["cond"] }
+        }
+      ]
+    },
+
+    "verifyStep": {
+      "type": "object",
+      "required": ["op"],
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "type": "string",
+          "enum": [
+            "verify_zip",
+            "verify_cli_predicts",
+            "verify_file_exists",
+            "verify_nonempty"
+          ]
+        },
+        "target": { "type": "string" },
+        "args": { "type": "object", "additionalProperties": true }
+      }
+    },
+
+    "rollbackStep": {
+      "type": "object",
+      "required": ["op"],
+      "additionalProperties": false,
+      "properties": {
+        "op": { "type": "string", "enum": ["delete", "move_back"] },
+        "target": { "type": "string" },
+        "from":   { "type": "string" },
+        "to":     { "type": "string" }
+      }
+    }
+  }
+}

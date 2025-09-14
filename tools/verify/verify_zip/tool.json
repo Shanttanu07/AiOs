@@ -1,0 +1,15 @@
+{
+  "name": "verify_zip",
+  "version": "1.0.0",
+  "description": "Verify ZIP archive integrity",
+  "category": "verify",
+  "inputs": {
+    "zip_path": {
+      "type": "string",
+      "description": "Path to ZIP file to verify"
+    }
+  },
+  "outputs": {},
+  "capabilities": ["fs.read"],
+  "implementation": "tools/verify/verify_zip/impl.py"
+}

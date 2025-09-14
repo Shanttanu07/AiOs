@@ -1,0 +1,20 @@
+{
+  "name": "read_csv",
+  "version": "1.0.0",
+  "description": "Read CSV file and parse into table format",
+  "category": "data",
+  "inputs": {
+    "path": {
+      "type": "string",
+      "description": "Path to CSV file"
+    }
+  },
+  "outputs": {
+    "table": {
+      "type": "table",
+      "description": "Parsed table with header and rows"
+    }
+  },
+  "capabilities": ["fs.read"],
+  "implementation": "tools/data/read_csv/impl.py"
+}

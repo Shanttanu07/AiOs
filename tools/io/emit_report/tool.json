@@ -1,0 +1,23 @@
+{
+  "name": "emit_report",
+  "version": "1.0.0",
+  "description": "Generate markdown report from schema and metrics",
+  "category": "io",
+  "inputs": {
+    "schema": {
+      "type": "schema",
+      "description": "Dataset schema information"
+    },
+    "metrics": {
+      "type": "metrics",
+      "description": "Model evaluation metrics"
+    },
+    "output_path": {
+      "type": "string",
+      "description": "Path to write report"
+    }
+  },
+  "outputs": {},
+  "capabilities": ["fs.write"],
+  "implementation": "tools/io/emit_report/impl.py"
+}

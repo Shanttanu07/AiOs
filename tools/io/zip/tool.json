@@ -1,0 +1,19 @@
+{
+  "name": "zip",
+  "version": "1.0.0",
+  "description": "Create ZIP archive from directory",
+  "category": "io",
+  "inputs": {
+    "source_dir": {
+      "type": "string",
+      "description": "Source directory to zip"
+    },
+    "output_path": {
+      "type": "string",
+      "description": "Output ZIP file path"
+    }
+  },
+  "outputs": {},
+  "capabilities": ["fs.write"],
+  "implementation": "tools/io/zip/impl.py"
+}

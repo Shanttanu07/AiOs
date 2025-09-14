@@ -1,0 +1,29 @@
+{
+  "name": "eval",
+  "version": "1.0.0",
+  "description": "Evaluate model performance on validation data",
+  "category": "ml",
+  "inputs": {
+    "model": {
+      "type": "model",
+      "description": "Trained model to evaluate"
+    },
+    "val_data": {
+      "type": "table",
+      "description": "Validation dataset"
+    },
+    "target": {
+      "type": "string",
+      "description": "Target column name",
+      "default": "price"
+    }
+  },
+  "outputs": {
+    "metrics": {
+      "type": "metrics",
+      "description": "Evaluation metrics (MSE, MAE, R2)"
+    }
+  },
+  "capabilities": [],
+  "implementation": "tools/ml/eval/impl.py"
+}

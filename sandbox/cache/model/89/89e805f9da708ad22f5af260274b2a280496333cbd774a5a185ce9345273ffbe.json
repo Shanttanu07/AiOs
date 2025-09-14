@@ -1,0 +1,20 @@
+{
+  "cache_key": "89e805f9da708ad22f5af260274b2a280496333cbd774a5a185ce9345273ffbe",
+  "timestamp": "2025-09-14T02:31:27.135766Z",
+  "model": "test-model",
+  "inputs": {
+    "model": "test",
+    "prompt": "hello"
+  },
+  "outputs": {
+    "response": "hello world"
+  },
+  "tokens": {
+    "input": 9,
+    "output": 6,
+    "total": 15
+  },
+  "latency_ms": 100.0,
+  "cost_usd": 2.1000000000000002e-05,
+  "co2_grams": 0.03
+}

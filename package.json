@@ -1,0 +1,15 @@
+{
+  "name": "ai-os",
+  "version": "0.1.0",
+  "description": "AI Operating System with sandboxed execution environment",
+  "main": "index.js",
+  "bin": {
+    "aiox": "./bin/aiox.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["ai", "operating-system", "sandbox"],
+  "author": "",
+  "license": "MIT"
+}

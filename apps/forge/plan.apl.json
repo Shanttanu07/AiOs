@@ -1,0 +1,89 @@
+{
+  "goal": "Build a house price predictor from data.csv",
+  "capabilities": [
+    "fs.read",
+    "fs.write",
+    "proc.spawn"
+  ],
+  "steps": [
+    {
+      "id": "step1",
+      "op": "load_csv",
+      "description": "Load housing dataset",
+      "in": "sandbox/in/housing.csv",
+      "out": "$housing_data"
+    },
+    {
+      "id": "step2",
+      "op": "profile_schema",
+      "description": "Analyze dataset structure",
+      "in": "$housing_data",
+      "out": "$data_schema"
+    },
+    {
+      "id": "step3",
+      "op": "split_deterministic",
+      "description": "Split data into train and validation sets",
+      "in": "$housing_data",
+      "out": "$train_data",
+      "args": {
+        "ratio": 0.8,
+        "seed": 1337
+      }
+    },
+    {
+      "id": "step4",
+      "op": "train_linear",
+      "description": "Train linear regression model",
+      "in": {
+        "train_data": "$train_data",
+        "target": "price"
+      },
+      "out": "$price_model"
+    },
+    {
+      "id": "step5",
+      "op": "eval_metrics",
+      "description": "Evaluate model performance",
+      "in": {
+        "model": "$price_model",
+        "val_data": "$val_data",
+        "target": "price"
+      },
+      "out": "$model_metrics"
+    },
+    {
+      "id": "step6",
+      "op": "emit_report",
+      "description": "Generate model performance report",
+      "in": {
+        "schema": "$data_schema",
+        "metrics": "$model_metrics",
+        "output_path": "sandbox/out/model_report.md"
+      }
+    },
+    {
+      "id": "step7",
+      "op": "build_cli",
+      "description": "Create CLI for house price prediction",
+      "in": {
+        "model": "$price_model",
+        "schema": "$data_schema",
+        "output_dir": "sandbox/out/price_predictor_cli"
+      }
+    },
+    {
+      "id": "step8",
+      "op": "bundle_zip",
+      "description": "Package predictor as distributable zip",
+      "in": {
+        "source_dir": "sandbox/out/price_predictor_cli",
+        "output_path": "sandbox/out/house_price_predictor.zip"
+      }
+    }
+  ],
+  "inputs": {
+    "main_input": "sandbox/in/housing.csv"
+  },
+  "_generated_at": "2025-09-14T03:19:22Z"
+}

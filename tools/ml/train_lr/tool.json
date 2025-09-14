@@ -1,0 +1,24 @@
+{
+  "name": "train_lr",
+  "version": "1.0.0",
+  "description": "Train linear regression model",
+  "category": "ml",
+  "inputs": {
+    "train_data": {
+      "type": "table",
+      "description": "Training dataset"
+    },
+    "target": {
+      "type": "string",
+      "description": "Target column name"
+    }
+  },
+  "outputs": {
+    "model": {
+      "type": "model",
+      "description": "Trained linear regression model"
+    }
+  },
+  "capabilities": [],
+  "implementation": "tools/ml/train_lr/impl.py"
+}

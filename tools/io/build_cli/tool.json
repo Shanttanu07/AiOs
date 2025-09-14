@@ -1,0 +1,23 @@
+{
+  "name": "build_cli",
+  "version": "1.0.0",
+  "description": "Build CLI application from trained model",
+  "category": "io",
+  "inputs": {
+    "model": {
+      "type": "model",
+      "description": "Trained model"
+    },
+    "schema": {
+      "type": "schema",
+      "description": "Dataset schema"
+    },
+    "output_dir": {
+      "type": "string",
+      "description": "Directory to build CLI app"
+    }
+  },
+  "outputs": {},
+  "capabilities": ["fs.write"],
+  "implementation": "tools/io/build_cli/impl.py"
+}

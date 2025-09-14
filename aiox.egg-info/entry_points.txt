@@ -1,0 +1,2 @@
+[console_scripts]
+aiox = aiox.cli:main

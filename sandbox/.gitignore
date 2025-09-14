@@ -1,0 +1,9 @@
+# Generated files - ignore sandbox outputs and temporary files
+out/
+tmp/
+logs/
+packages/
+
+# Keep input directory structure but ignore actual input files
+in/*
+!in/.gitkeep

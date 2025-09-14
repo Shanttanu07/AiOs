@@ -1,0 +1,24 @@
+{
+  "name": "verify_cli",
+  "version": "1.0.0",
+  "description": "Test CLI application with sample input",
+  "category": "verify",
+  "inputs": {
+    "app_dir": {
+      "type": "string",
+      "description": "CLI application directory"
+    },
+    "sample_input": {
+      "type": "string",
+      "description": "Path to sample input JSON"
+    }
+  },
+  "outputs": {
+    "prediction": {
+      "type": "float",
+      "description": "CLI prediction result"
+    }
+  },
+  "capabilities": ["proc.spawn"],
+  "implementation": "tools/verify/verify_cli/impl.py"
+}

@@ -1,0 +1,138 @@
+{
+  "program": [
+    [
+      "CALL_TOOL",
+      "read_csv",
+      {
+        "path": "sandbox/in/housing.csv"
+      },
+      {
+        "table": "S0"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "profile",
+      {
+        "table": "S0"
+      },
+      {
+        "schema": "S1"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "split",
+      {
+        "table": "S0",
+        "ratio": 0.8,
+        "seed": 1337
+      },
+      {
+        "train": "S2",
+        "val": "S3"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "train_lr",
+      {
+        "train_data": "S2",
+        "target": "price"
+      },
+      {
+        "model": "S4"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "eval",
+      {
+        "model": "S4",
+        "val_data": "S3",
+        "target": "price"
+      },
+      {
+        "metrics": "S5"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "assert_ge",
+      {
+        "metrics": "S5",
+        "field": "R2",
+        "threshold": 0.6
+      },
+      {}
+    ],
+    [
+      "CALL_TOOL",
+      "emit_report",
+      {
+        "schema": "S1",
+        "metrics": "S5",
+        "output_path": "sandbox/out/report.md"
+      },
+      {}
+    ],
+    [
+      "CALL_TOOL",
+      "build_cli",
+      {
+        "model": "S4",
+        "schema": "S1",
+        "output_dir": "sandbox/out/app/"
+      },
+      {}
+    ],
+    [
+      "CALL_TOOL",
+      "zip",
+      {
+        "source_dir": "sandbox/out/app/",
+        "output_path": "sandbox/out/app.zip"
+      },
+      {}
+    ],
+    [
+      "CALL_TOOL",
+      "verify_zip",
+      {
+        "zip_path": "sandbox/out/app.zip"
+      },
+      {}
+    ],
+    [
+      "CALL_TOOL",
+      "verify_cli",
+      {
+        "app_dir": "sandbox/out/app/",
+        "sample_input": "sandbox/in/sample.json"
+      },
+      {
+        "prediction": "_temp_10"
+      }
+    ]
+  ],
+  "capabilities": [
+    "fs.read",
+    "fs.write",
+    "proc.spawn"
+  ],
+  "slots": {
+    "table": "S0",
+    "schema": "S1",
+    "train": "S2",
+    "val": "S3",
+    "model": "S4",
+    "metrics": "S5"
+  },
+  "metadata": {
+    "goal": "From housing.csv, build a small price predictor: profile -> split (seed=1337) -> train linear -> eval -> report -> package CLI",
+    "inputs": {
+      "csv": "sandbox/in/housing.csv"
+    },
+    "compilation_mode": "tools"
+  }
+}

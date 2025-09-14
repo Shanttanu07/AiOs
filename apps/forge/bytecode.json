@@ -1,0 +1,71 @@
+{
+  "program": [
+    [
+      "READ_CSV",
+      "sandbox/in/housing.csv",
+      "S0"
+    ],
+    [
+      "PROFILE",
+      "S0",
+      "S1"
+    ],
+    [
+      "SPLIT",
+      "S0",
+      0.8,
+      1337,
+      "S2",
+      "S3"
+    ],
+    [
+      "TRAIN_LR",
+      "S2",
+      "price",
+      "S4"
+    ],
+    [
+      "EVAL",
+      "S4",
+      "S3",
+      "S5"
+    ],
+    [
+      "EMIT_REPORT",
+      "S1",
+      "S5",
+      "sandbox/out/model_report.md"
+    ],
+    [
+      "BUILD_CLI",
+      "S4",
+      "S1",
+      "sandbox/out/price_predictor_cli"
+    ],
+    [
+      "ZIP",
+      "sandbox/out/price_predictor_cli",
+      "sandbox/out/house_price_predictor.zip"
+    ]
+  ],
+  "capabilities": [
+    "fs.read",
+    "fs.write",
+    "proc.spawn"
+  ],
+  "slots": {
+    "housing_data": "S0",
+    "data_schema": "S1",
+    "train_data": "S2",
+    "val_data": "S3",
+    "price_model": "S4",
+    "model_metrics": "S5"
+  },
+  "metadata": {
+    "goal": "Build a house price predictor from data.csv",
+    "inputs": {
+      "main_input": "sandbox/in/housing.csv"
+    },
+    "compilation_mode": "legacy"
+  }
+}

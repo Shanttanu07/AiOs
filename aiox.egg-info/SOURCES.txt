@@ -1,0 +1,10 @@
+setup.py
+aiox/__init__.py
+aiox/__main__.py
+aiox/cli.py
+aiox.egg-info/PKG-INFO
+aiox.egg-info/SOURCES.txt
+aiox.egg-info/dependency_links.txt
+aiox.egg-info/entry_points.txt
+aiox.egg-info/requires.txt
+aiox.egg-info/top_level.txt

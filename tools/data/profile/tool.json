@@ -1,0 +1,20 @@
+{
+  "name": "profile",
+  "version": "1.0.0",
+  "description": "Profile dataset schema and generate metadata",
+  "category": "data",
+  "inputs": {
+    "table": {
+      "type": "table",
+      "description": "Input table to profile"
+    }
+  },
+  "outputs": {
+    "schema": {
+      "type": "schema",
+      "description": "Dataset schema with column types and statistics"
+    }
+  },
+  "capabilities": [],
+  "implementation": "tools/data/profile/impl.py"
+}

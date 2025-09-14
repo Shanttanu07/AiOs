@@ -1,0 +1,23 @@
+{
+  "name": "assert_ge",
+  "version": "1.0.0",
+  "description": "Assert that metric is greater than or equal to threshold",
+  "category": "verify",
+  "inputs": {
+    "metrics": {
+      "type": "metrics",
+      "description": "Metrics object"
+    },
+    "field": {
+      "type": "string",
+      "description": "Metric field name"
+    },
+    "threshold": {
+      "type": "float",
+      "description": "Minimum acceptable value"
+    }
+  },
+  "outputs": {},
+  "capabilities": [],
+  "implementation": "tools/verify/assert_ge/impl.py"
+}
