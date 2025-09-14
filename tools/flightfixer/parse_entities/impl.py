@@ -82,7 +82,7 @@ def execute(inputs, context):
 
     for idx, row in df.iterrows():
         text = str(row.get('text', ''))
-        airline = row.get('airline', '')
+        airline = row.get('airline', '') or ''  # Handle None values
 
         parsed = {
             'original_text': text,
@@ -158,9 +158,9 @@ def execute(inputs, context):
                             parsed['flight_date'] = f"{current_year}-{month:0>2}-{day:0>2}"
                     elif isinstance(match, str):
                         # Handle relative dates
-                        if match.lower() in ['yesterday', 'today']:
+                        if str(match).lower() in ['yesterday', 'today']:
                             base_date = datetime.now()
-                            if match.lower() == 'yesterday':
+                            if str(match).lower() == 'yesterday':
                                 base_date -= timedelta(days=1)
                             parsed['flight_date'] = base_date.strftime('%Y-%m-%d')
 
@@ -177,7 +177,7 @@ def execute(inputs, context):
 
         for pattern in patterns['incidents']:
             if re.search(pattern, text, re.IGNORECASE):
-                incident_types.append(re.search(pattern, text, re.IGNORECASE).group(0).lower())
+                incident_types.append(str(re.search(pattern, text, re.IGNORECASE).group(0)).lower())
 
         for pattern in patterns['delays']:
             match = re.search(pattern, text, re.IGNORECASE)

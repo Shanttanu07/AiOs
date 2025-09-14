@@ -638,7 +638,7 @@ class VM:
                 for key, value in inputs_dict.items():
                     if isinstance(value, str) and value.startswith("S"):
                         # Slot reference
-                        resolved_inputs[key] = self.mem[value]
+                        resolved_inputs[key] = self.mem.get(value)
                     else:
                         # Literal value
                         resolved_inputs[key] = value
@@ -649,8 +649,7 @@ class VM:
 
                     # Store outputs in slots
                     for key, slot in outputs_dict.items():
-                        if key in result:
-                            self.mem[slot] = result[key]
+                        self.mem[slot] = result.get(key)
 
                     # Track resource usage
                     self.quotas.charge("cpu_ms", 10)  # Basic tool execution cost

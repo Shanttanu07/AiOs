@@ -1,0 +1,19 @@
+{
+  "goal": "Test basic data analysis workflow",
+  "capabilities": [
+    "fs.read"
+  ],
+  "steps": [
+    {
+      "id": "step1",
+      "op": "read_csv",
+      "description": "Load test data",
+      "in": "sandbox/in/data.csv",
+      "out": "$data"
+    }
+  ],
+  "inputs": {
+    "dataset": "data.csv"
+  },
+  "_generated_at": "2024-01-01T00:00:00Z"
+}

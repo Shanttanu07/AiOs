@@ -82,11 +82,6 @@
     "twitter_dataset": "sandbox/in/twitter_airline_sentiment.csv",
     "bts_data": "sandbox/in/bts_ontime_feb2015.csv"
   },
-  "outputs": {
-    "refund_claims": "sandbox/out/refund_claims.jsonl",
-    "customer_replies": "sandbox/out/customer_replies/",
-    "ops_slack_notification": "sandbox/out/slack_notification.json"
-  },
   "verify": [
     {
       "op": "verify_file_exists",

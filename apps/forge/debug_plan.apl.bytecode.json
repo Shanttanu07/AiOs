@@ -1,0 +1,25 @@
+{
+  "program": [
+    [
+      "CALL_TOOL",
+      "read_csv",
+      {
+        "path": "sandbox/in/twitter_airline_sentiment.csv"
+      },
+      {
+        "result": "$tweets_data"
+      }
+    ]
+  ],
+  "capabilities": [
+    "fs.read"
+  ],
+  "slots": {},
+  "metadata": {
+    "goal": "Debug read_csv output",
+    "inputs": {
+      "main_input": "twitter_airline_sentiment.csv"
+    },
+    "compilation_mode": "tools"
+  }
+}

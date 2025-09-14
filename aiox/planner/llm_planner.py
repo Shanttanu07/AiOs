@@ -27,12 +27,17 @@ class APIKeyManager:
         if api_key:
             return api_key
 
-        # Prompt user securely
+        # Prompt user securely only in interactive mode
         try:
-            print("Claude API key not found in environment variables.")
-            print("Please set ANTHROPIC_API_KEY or CLAUDE_API_KEY, or enter it now:")
-            api_key = getpass.getpass("Claude API Key: ").strip()
-            return api_key if api_key else None
+            import sys
+            if sys.stdin.isatty():  # Only prompt if in interactive terminal
+                print("Claude API key not found in environment variables.")
+                print("Please set ANTHROPIC_API_KEY or CLAUDE_API_KEY, or enter it now:")
+                api_key = getpass.getpass("Claude API Key: ").strip()
+                return api_key if api_key else None
+            else:
+                # Non-interactive mode - return None to trigger fallback
+                return None
         except (KeyboardInterrupt, EOFError):
             print("\nAPI key input cancelled.")
             return None
@@ -188,14 +193,14 @@ CRITICAL: You must respond with ONLY a JSON object using this EXACT structure:
   "capabilities": ["fs.read", "fs.write", "proc.spawn"]
 }}
 
-STEP FORMAT EXAMPLE for "Clean and analyze customer database":
+STEP FORMAT EXAMPLE for "Analyze dataset and generate insights":
 {{
   "steps": [
     {{
       "id": "step1",
       "op": "read_csv",
-      "description": "Load customer data",
-      "in": "sandbox/in/crm_customers.csv",
+      "description": "Load input data",
+      "in": "sandbox/in/data.csv",
       "out": "$customer_data"
     }},
     {{

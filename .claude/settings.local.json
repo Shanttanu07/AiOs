@@ -8,7 +8,10 @@
       "Bash(aiox compile:*)",
       "Bash(aiox run:*)",
       "Bash(timeout 30 python -m aiox prompt:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(rm:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

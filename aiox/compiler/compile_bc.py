@@ -170,6 +170,15 @@ def lower_steps(plan: Dict[str, Any], use_tools: bool = False) -> Tuple[List[Lis
             if use_tools:
                 # In tools mode, defer to convert_to_tool_calls for unknown operations
                 # Create a placeholder instruction that will be converted to CALL_TOOL
+                # Handle multiple outputs in APL format
+                step_out = step.get("out", "")
+                if isinstance(step_out, dict):
+                    # Multiple outputs format: {"key1": "$var1", "key2": "$var2"}
+                    # Create slots for each output variable
+                    for output_key, var_ref in step_out.items():
+                        if isinstance(var_ref, str) and var_ref.startswith("$"):
+                            var_name = var_ref[1:]  # Remove $
+                            slot = st.slot_of(var_ref)  # This will create the slot if needed
                 prog.append(["CALL_TOOL_PLACEHOLDER", op, step])
             else:
                 raise ValueError(f"Unsupported APL op in v1: {op}")
@@ -243,7 +252,7 @@ def _last_build_cli_outdir(prog: List[List[Any]]) -> str:
     # default (if not found): conventional app dir
     return "sandbox/out/app/"
 
-def convert_to_tool_calls(program: List[List[Any]], slots: Dict[str, str]) -> List[List[Any]]:
+def convert_to_tool_calls(program: List[List[Any]], slots: Dict[str, str], tools_registry=None) -> List[List[Any]]:
     """Convert legacy opcodes to CALL_TOOL instructions"""
     converted = []
 
@@ -259,27 +268,79 @@ def convert_to_tool_calls(program: List[List[Any]], slots: Dict[str, str]) -> Li
             # Convert APL step to CALL_TOOL instruction
             inputs = step.get("in", {})
 
-            # Handle different input formats
+            # Handle different input formats and convert variables to slots
             if isinstance(inputs, str):
                 # Simple string input like "$data"
                 if inputs.startswith("$"):
-                    # This is a variable reference, keep as-is
-                    inputs = {"data": inputs}
+                    # Convert $variable to S format
+                    var_name = inputs[1:]  # Remove $
+                    if var_name in slots:
+                        slot = slots[var_name]
+                    else:
+                        slot = f"S{len(slots)}"
+                        slots[var_name] = slot
+                    inputs = {"input": slot}
                 else:
                     # This is a file path
                     inputs = {"input": inputs}
             elif isinstance(inputs, dict):
-                # Already a dictionary of inputs
-                pass
+                # Convert all $variables in inputs to S format
+                converted_inputs = {}
+                for key, value in inputs.items():
+                    if isinstance(value, str) and value.startswith("$"):
+                        var_name = value[1:]  # Remove $
+                        if var_name in slots:
+                            slot = slots[var_name]
+                        else:
+                            slot = f"S{len(slots)}"
+                            slots[var_name] = slot
+                        converted_inputs[key] = slot
+                    else:
+                        converted_inputs[key] = value
+                inputs = converted_inputs
             else:
                 inputs = {"input": inputs}
 
-            # Extract output variable
+            # Extract output variable and convert to slot format
             outputs = {}
             step_out = step.get("out", "")
-            if step_out and step_out.startswith("$"):
-                # Use the step output as the primary output
-                outputs = {"result": step_out}
+
+            if isinstance(step_out, dict):
+                # New APL format with explicit multiple outputs: {"key1": "$var1", "key2": "$var2"}
+                for output_key, var_ref in step_out.items():
+                    if isinstance(var_ref, str) and var_ref.startswith("$"):
+                        var_name = var_ref[1:]  # Remove $
+                        if var_name in slots:
+                            slot = slots[var_name]
+                        else:
+                            slot = f"S{len(slots)}"
+                            slots[var_name] = slot
+                        outputs[output_key] = slot
+            elif step_out and step_out.startswith("$"):
+                # Single output legacy format: "$variable"
+                var_name = step_out[1:]  # Remove $
+                if var_name in slots:
+                    slot = slots[var_name]
+                else:
+                    # Create new slot if not exists
+                    slot = f"S{len(slots)}"
+                    slots[var_name] = slot
+
+                # For single output legacy format, only use the first output from tool spec
+                # Do NOT auto-generate multiple outputs - this breaks slot references
+                if tools_registry:
+                    tool_spec = tools_registry.get_tool(tool_name)
+                    if tool_spec and tool_spec.outputs:
+                        output_keys = list(tool_spec.outputs.keys())
+                        if len(output_keys) >= 1:
+                            # Use only the first output key for single output format
+                            outputs = {output_keys[0]: slot}
+                        else:
+                            outputs = {"result": slot}
+                    else:
+                        outputs = {"result": slot}
+                else:
+                    outputs = {"result": slot}
 
             converted.append(["CALL_TOOL", tool_name, inputs, outputs])
             continue
@@ -405,7 +466,7 @@ def compile_plan_file(plan_path: Path, out_path: Path = None, schema_path: Path 
 
     # Convert to tool calls if requested
     if use_tools:
-        program = convert_to_tool_calls(program, slots)
+        program = convert_to_tool_calls(program, slots, tools_registry)
         print(f"[bc] Using tool-based compilation (CALL_TOOL)")
 
     # sanity check opcode names

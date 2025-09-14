@@ -10,16 +10,25 @@ def execute(inputs, context):
     except ImportError as e:
         return {"error": f"Required library not available: {e}"}
 
-    matched_flights_data = inputs["matched_flights"]
-    dot_rules_config = inputs.get("dot_rules_config", {
+    matched_flights_data = inputs.get("matched_flights")
+    if not matched_flights_data:
+        return {
+            "refund_decisions": {"header": [], "rows": []},
+            "refund_summary": {"total_cases": 0, "eligible_refunds": 0}
+        }
+        
+    default_config = {
         "domestic_significant_delay_minutes": 180,  # 3 hours
         "international_significant_delay_minutes": 360,  # 6 hours
         "automatic_refund_required": True,
         "baggage_delay_hours": 12,
         "wifi_refund_threshold_percent": 50
-    })
+    }
+    provided_config = inputs.get("dot_rules_config", {})
+    dot_rules_config = default_config.copy()
+    dot_rules_config.update(provided_config)
 
-    if not matched_flights_data["rows"]:
+    if not matched_flights_data.get("rows"):
         return {
             "refund_decisions": {"header": [], "rows": []},
             "refund_summary": {"total_cases": 0, "eligible_refunds": 0}

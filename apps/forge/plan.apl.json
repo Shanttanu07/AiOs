@@ -1,61 +1,110 @@
 {
-  "goal": "Analyze sample data and generate insights report",
+  "goal": "analyze airline complaints",
   "capabilities": [
     "fs.read",
-    "fs.write"
+    "fs.write",
+    "model.call"
   ],
   "steps": [
     {
       "id": "step1",
-      "op": "read_csv",
-      "description": "Load input CSV file",
-      "in": "sandbox/in/data.csv",
-      "out": "$input_data"
+      "op": "tweets_load",
+      "description": "Load Twitter airline complaint dataset",
+      "in": {
+        "dataset_path": "sandbox/in/airline_tweets.csv",
+        "target_airlines": [
+          "@united",
+          "@AmericanAir",
+          "@DeltaAir"
+        ],
+        "sentiment_filter": [
+          "negative"
+        ]
+      },
+      "out": "$complaint_tweets"
     },
     {
       "id": "step2",
-      "op": "profile",
-      "description": "Profile dataset to understand schema and statistics",
-      "in": "$input_data",
-      "out": "$data_schema"
+      "op": "parse_entities",
+      "description": "Extract structured information from complaint tweets",
+      "in": {
+        "tweets": "$complaint_tweets",
+        "confidence_threshold": 0.7,
+        "use_llm_fallback": true
+      },
+      "out": "$parsed_tweets"
     },
     {
       "id": "step3",
-      "op": "resolve_conflicts",
-      "description": "Clean and reconcile any potential data conflicts",
+      "op": "bts_loader",
+      "description": "Load Bureau of Transportation Statistics flight performance data",
       "in": {
-        "crm_data": "$input_data",
-        "support_data": "$input_data",
-        "payment_data": "$input_data",
-        "confidence_threshold": 0.7
+        "bts_data_path": "sandbox/in/bts_performance.csv",
+        "month_filter": "2024-01",
+        "carriers": [
+          "UA",
+          "AA",
+          "DL"
+        ]
       },
-      "out": "$cleaned_data"
+      "out": "$flight_performance"
     },
     {
       "id": "step4",
-      "op": "business_insights",
-      "description": "Generate actionable business insights from cleaned data",
+      "op": "flight_matcher",
+      "description": "Match tweets with flight performance data",
       "in": {
-        "customer_data": "$cleaned_data",
-        "focus_areas": [
-          "overall_trends",
-          "data_quality"
-        ]
+        "parsed_tweets": "$parsed_tweets",
+        "flight_performance": "$flight_performance",
+        "match_confidence_threshold": 0.6,
+        "date_tolerance_days": 3
       },
-      "out": "$insights"
+      "out": "$matched_flights"
     },
     {
       "id": "step5",
-      "op": "emit_report",
-      "description": "Create markdown report with schema and insights",
+      "op": "refund_analyzer",
+      "description": "Determine refund eligibility based on DOT rules",
       "in": {
-        "schema": "$data_schema",
-        "metrics": "$insights"
-      }
+        "matched_flights": "$matched_flights",
+        "dot_rules_config": {
+          "delay_threshold": 3,
+          "cancellation_threshold": 0.1
+        }
+      },
+      "out": "$refund_decisions"
+    },
+    {
+      "id": "step6",
+      "op": "action_generator",
+      "description": "Generate actionable outputs for complaint resolution",
+      "in": {
+        "refund_decisions": "$refund_decisions",
+        "unmatched_tweets": "$unmatched_tweets",
+        "output_config": {
+          "format": "json",
+          "include_slack_notification": true
+        }
+      },
+      "out": "$complaint_resolution_actions"
+    },
+    {
+      "id": "step7",
+      "op": "business_insights",
+      "description": "Generate comprehensive business insights from complaint analysis",
+      "in": {
+        "customer_data": "$matched_flights",
+        "focus_areas": [
+          "customer_satisfaction",
+          "refund_policy",
+          "airline_performance"
+        ]
+      },
+      "out": "$airline_insights"
     }
   ],
   "inputs": {
-    "main_input": "data.csv"
+    "main_input": "sandbox/in/airline_tweets.csv"
   },
-  "_generated_at": "2025-09-14T11:27:31Z"
+  "_generated_at": "2025-09-14T15:46:27Z"
 }

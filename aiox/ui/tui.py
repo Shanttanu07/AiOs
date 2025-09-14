@@ -29,7 +29,7 @@ class ActivityUI:
         self.root = root.resolve()
         self.sbx = self.root / "sandbox"
         self.plan_path = self.root / "apps" / "forge" / "plan.apl.json"
-        self.bc_path   = self.root / "apps" / "forge" / "bytecode.json"
+        self.bc_path   = self.root / "apps" / "forge" / "plan.apl.bytecode.json"
         self.pkg_path  = self.sbx / "packages" / "forge.aiox"
         self.status = "Ready."
         self.log_lines: List[str] = []
@@ -503,10 +503,36 @@ class ActivityUI:
 
     # --------------- actions ---------------
 
+    def _ensure_bytecode(self):
+        """Ensure bytecode exists and is up-to-date, compile if needed"""
+        if not self.plan_path.exists():
+            raise FileNotFoundError("No plan found. Generate a plan first [g].")
+
+        # Check if bytecode needs compilation
+        needs_compile = (
+            not self.bc_path.exists() or
+            (self.plan_path.exists() and self.plan_path.stat().st_mtime > self.bc_path.stat().st_mtime)
+        )
+
+        if needs_compile:
+            self.status = "Compiling plan to bytecode..."
+            self.draw(); self.stdscr.refresh()
+            try:
+                from ..compiler.compile_bc import compile_plan_file
+                compile_plan_file(
+                    plan_path=self.plan_path,
+                    out_path=self.bc_path,
+                    use_tools=True,
+                    tools_root=self.root / "tools"
+                )
+            except Exception as e:
+                raise Exception(f"Compilation failed: {e}")
+
     def action_dryrun(self):
         self.status = "Dry-run in progress…"
         self.draw(); self.stdscr.refresh()
         try:
+            self._ensure_bytecode()
             run_bytecode(self.bc_path, self.sbx, dry_run=True, auto_yes=True)
             self.status = "Dry-run completed."
         except Exception as e:
@@ -517,6 +543,7 @@ class ActivityUI:
         self.status = "Execute in progress…"
         self.draw()
         try:
+            self._ensure_bytecode()
             run_bytecode(self.bc_path, self.sbx, dry_run=False, auto_yes=True)
             self.status = "Execute completed."
         except Exception as e:
@@ -527,6 +554,7 @@ class ActivityUI:
         self.status = "Packing…"
         self.draw()
         try:
+            self._ensure_bytecode()
             make_aiox(self.plan_path, self.bc_path, self.sbx, self.pkg_path, name="forge")
             self.status = f"Packed → {self._rel(self.pkg_path)}"
         except Exception as e:
@@ -588,7 +616,7 @@ class ActivityUI:
         self.draw()
 
     def action_generate_plan(self):
-        """Generate a new plan using LLM planner"""
+        """Generate a new plan using LLM planner with dynamic input detection"""
         self.status = "Generating plan with LLM..."
         self.draw()
         try:
@@ -596,15 +624,47 @@ class ActivityUI:
             from ..planner.core import PlanGenerator
             from ..planner.apl_converter import APLConverter
 
-            # Initialize components
+            # Initialize components with dynamic tool discovery
             registry = ToolRegistry(self.root / "tools")
-            registry.discover_tools()
+            discovered_tools = registry.discover_tools()
             planner = PlanGenerator(registry, self.sbx)
-            converter = APLConverter()
+            converter = APLConverter(registry)
 
-            # Use a sample goal for demonstration
-            goal = "Analyze sample data and generate insights report"
-            execution_plan = planner.generate_plan(goal=goal, input_csv="data.csv")
+            # Dynamically detect available input files
+            input_dir = self.sbx / "in"
+            input_files = []
+            if input_dir.exists():
+                input_files = [f.name for f in input_dir.glob("*.csv")]
+                if not input_files:
+                    input_files = [f.name for f in input_dir.glob("*.*")]
+
+            # Select primary input file
+            primary_input = None
+            if input_files:
+                # Prioritize common demo files, then use first available
+                priority_files = ['twitter_airline_sentiment.csv', 'crm_customers.csv', 'bts_ontime_feb2015.csv']
+                for pf in priority_files:
+                    if pf in input_files:
+                        primary_input = pf
+                        break
+                if not primary_input:
+                    primary_input = input_files[0]
+
+            # Generate goal based on available input and tools
+            if primary_input:
+                if 'airline' in primary_input.lower() or 'twitter' in primary_input.lower():
+                    goal = "Analyze airline sentiment data and generate actionable insights"
+                elif 'crm' in primary_input.lower() or 'customer' in primary_input.lower():
+                    goal = "Analyze customer data and resolve any data conflicts"
+                elif 'flight' in primary_input.lower() or 'bts' in primary_input.lower():
+                    goal = "Analyze flight performance data and identify trends"
+                else:
+                    goal = f"Analyze {primary_input} dataset and generate comprehensive insights report"
+
+                execution_plan = planner.generate_plan(goal=goal, input_csv=primary_input)
+            else:
+                goal = "Analyze available data and generate insights report"
+                execution_plan = planner.generate_plan(goal=goal)
 
             # Convert to APL and save
             apl_data = converter.convert_to_apl(execution_plan)
@@ -614,7 +674,8 @@ class ActivityUI:
             self.plan_path.write_text(json.dumps(apl_data, indent=2), encoding="utf-8")
 
             planner_type = execution_plan.metadata.get('planner_type', 'unknown')
-            self.status = f"Plan generated ({planner_type}) - {len(execution_plan.steps)} steps"
+            input_info = f" ({primary_input})" if primary_input else " (no input files)"
+            self.status = f"Plan generated ({planner_type}) - {len(execution_plan.steps)} steps{input_info}"
 
         except Exception as e:
             self.status = f"Generate error: {str(e)[:50]}..."

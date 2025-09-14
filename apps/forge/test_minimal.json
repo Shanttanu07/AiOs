@@ -1,0 +1,22 @@
+{
+  "program": [
+    [
+      "CALL_TOOL",
+      "read_csv",
+      {
+        "path": "sandbox/in/twitter_airline_sentiment.csv"
+      },
+      {
+        "table": "$data"
+      }
+    ]
+  ],
+  "capabilities": [
+    "fs.read"
+  ],
+  "slots": {},
+  "metadata": {
+    "goal": "test",
+    "compilation_mode": "tools"
+  }
+}

@@ -33,7 +33,19 @@ class APLConverter:
 
         # Only add optional fields if they have content and are schema-valid
         if plan.inputs:
-            apl["inputs"] = plan.inputs
+            # Ensure inputs conform to schema (string values only)
+            schema_inputs = {}
+            for key, value in plan.inputs.items():
+                if isinstance(value, list):
+                    # Convert list to comma-separated string
+                    schema_inputs[key] = ", ".join(str(v) for v in value)
+                elif isinstance(value, (dict, tuple)):
+                    # Convert complex types to string representation
+                    schema_inputs[key] = str(value)
+                else:
+                    # String values are fine as-is
+                    schema_inputs[key] = str(value)
+            apl["inputs"] = schema_inputs
 
         # Add _generated_at as it's in the schema (optional field)
         apl["_generated_at"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")

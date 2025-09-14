@@ -1,0 +1,57 @@
+{
+  "program": [
+    [
+      "CALL_TOOL",
+      "read_csv",
+      {
+        "input": "sandbox/in/twitter_airline_sentiment.csv"
+      },
+      {
+        "result": "$complaint_data"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "profile",
+      {
+        "data": "$complaint_data"
+      },
+      {
+        "result": "$data_profile"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "read_csv",
+      {
+        "input": "sandbox/in/bts_ontime_feb2015.csv"
+      },
+      {
+        "result": "$flight_data"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "profile",
+      {
+        "data": "$flight_data"
+      },
+      {
+        "result": "$flight_profile"
+      }
+    ]
+  ],
+  "capabilities": [
+    "fs.read",
+    "fs.write"
+  ],
+  "slots": {},
+  "metadata": {
+    "goal": "Analyze airline complaint data and generate insights report",
+    "inputs": {
+      "complaint_data": "sandbox/in/twitter_airline_sentiment.csv",
+      "flight_data": "sandbox/in/bts_ontime_feb2015.csv"
+    },
+    "compilation_mode": "tools"
+  }
+}

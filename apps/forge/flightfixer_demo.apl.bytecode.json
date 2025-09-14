@@ -4,12 +4,17 @@
       "CALL_TOOL",
       "tweets_load",
       {
-        "dataset_path": "sandbox/in/airline_tweets.csv",
+        "dataset_path": "sandbox/in/twitter_airline_sentiment.csv",
         "target_airlines": [
           "@united",
           "@AmericanAir",
-          "@DeltaAir"
+          "@Delta",
+          "@SouthwestAir"
         ],
+        "date_range": {
+          "start": "2015-02-01",
+          "end": "2015-02-28"
+        },
         "sentiment_filter": [
           "negative"
         ]
@@ -23,7 +28,7 @@
       "parse_entities",
       {
         "tweets": "S0",
-        "confidence_threshold": 0.7,
+        "confidence_threshold": 0.6,
         "use_llm_fallback": true
       },
       {
@@ -34,12 +39,13 @@
       "CALL_TOOL",
       "bts_loader",
       {
-        "bts_data_path": "sandbox/in/bts_performance.csv",
-        "month_filter": "2024-01",
+        "bts_data_path": "sandbox/in/bts_ontime_feb2015.csv",
+        "month_filter": "2015-02",
         "carriers": [
           "UA",
           "AA",
-          "DL"
+          "DL",
+          "WN"
         ]
       },
       {
@@ -52,8 +58,8 @@
       {
         "parsed_tweets": "S1",
         "flight_performance": "S2",
-        "match_confidence_threshold": 0.6,
-        "date_tolerance_days": 3
+        "match_confidence_threshold": 0.7,
+        "date_tolerance_days": 1
       },
       {
         "matched_flights": "S3"
@@ -65,8 +71,9 @@
       {
         "matched_flights": "S3",
         "dot_rules_config": {
-          "delay_threshold": 3,
-          "cancellation_threshold": 0.1
+          "domestic_significant_delay_minutes": 180,
+          "international_significant_delay_minutes": 360,
+          "automatic_refund_required": true
         }
       },
       {
@@ -80,27 +87,13 @@
         "refund_decisions": "S4",
         "unmatched_tweets": "S5",
         "output_config": {
-          "format": "json",
-          "include_slack_notification": true
+          "claims_format": "jsonl",
+          "replies_format": "markdown",
+          "include_legal_disclaimer": true
         }
       },
       {
         "refund_claims": "S6"
-      }
-    ],
-    [
-      "CALL_TOOL",
-      "business_insights",
-      {
-        "customer_data": "S3",
-        "focus_areas": [
-          "customer_satisfaction",
-          "refund_policy",
-          "airline_performance"
-        ]
-      },
-      {
-        "executive_summary": "S7"
       }
     ]
   ],
@@ -111,18 +104,18 @@
   ],
   "slots": {
     "complaint_tweets": "S0",
-    "parsed_tweets": "S1",
+    "parsed_complaints": "S1",
     "flight_performance": "S2",
     "matched_flights": "S3",
     "refund_decisions": "S4",
     "unmatched_tweets": "S5",
-    "complaint_resolution_actions": "S6",
-    "airline_insights": "S7"
+    "actionable_outputs": "S6"
   },
   "metadata": {
-    "goal": "analyze airline complaints",
+    "goal": "FlightFixer: Transform messy airline complaints into actionable refund claims using real BTS data and DOT 2024 rules",
     "inputs": {
-      "main_input": "sandbox/in/airline_tweets.csv"
+      "twitter_dataset": "sandbox/in/twitter_airline_sentiment.csv",
+      "bts_data": "sandbox/in/bts_ontime_feb2015.csv"
     },
     "compilation_mode": "tools"
   }

@@ -1,26 +1,111 @@
 {
-  "goal": "Process airline complaint tweets and match them with flight data to identify refund eligibility using DOT 2024 rules and generate actionable outputs",
+  "goal": "Analyze airline complaint patterns and generate insights",
   "capabilities": [
-    "fs.read"
+    "fs.read",
+    "fs.write",
+    "model.call"
   ],
   "steps": [
     {
-      "id": "load",
-      "op": "read_csv",
-      "description": "Load twitter_airline_sentiment.csv",
-      "in": "sandbox/in/twitter_airline_sentiment.csv",
-      "out": "$data"
+      "id": "step1",
+      "op": "tweets_load",
+      "description": "Load Twitter airline sentiment data",
+      "in": {
+        "dataset_path": "sandbox/in/twitter_airline_sentiment.csv",
+        "target_airlines": [
+          "@united",
+          "@AmericanAir",
+          "@delta"
+        ],
+        "sentiment_filter": [
+          "negative",
+          "complaint"
+        ]
+      },
+      "out": "$tweets_data"
     },
     {
-      "id": "analyze",
-      "op": "profile",
-      "description": "Analyze data structure",
-      "in": "$data",
-      "out": "$summary"
+      "id": "step2",
+      "op": "parse_entities",
+      "description": "Extract structured flight complaint details from tweets",
+      "in": {
+        "tweets": "$tweets_data",
+        "confidence_threshold": 0.7,
+        "use_llm_fallback": true
+      },
+      "out": "$parsed_tweets"
+    },
+    {
+      "id": "step3",
+      "op": "bts_loader",
+      "description": "Load BTS flight performance data for validation",
+      "in": {
+        "bts_data_path": "sandbox/in/bts_flight_performance.csv",
+        "month_filter": "2024-01",
+        "carriers": [
+          "UA",
+          "AA",
+          "DL"
+        ]
+      },
+      "out": "$flight_performance"
+    },
+    {
+      "id": "step4",
+      "op": "flight_matcher",
+      "description": "Match tweets with official flight performance data",
+      "in": {
+        "parsed_tweets": "$parsed_tweets",
+        "flight_performance": "$flight_performance",
+        "match_confidence_threshold": 0.6,
+        "date_tolerance_days": 3
+      },
+      "out": "$matched_flights"
+    },
+    {
+      "id": "step5",
+      "op": "refund_analyzer",
+      "description": "Analyze refund eligibility based on DOT rules",
+      "in": {
+        "matched_flights": "$matched_flights",
+        "dot_rules_config": {
+          "delay_threshold_minutes": 120,
+          "cancellation_compensation": true
+        }
+      },
+      "out": "$refund_decisions"
+    },
+    {
+      "id": "step6",
+      "op": "action_generator",
+      "description": "Generate actionable insights and response drafts",
+      "in": {
+        "refund_decisions": "$refund_decisions",
+        "unmatched_tweets": "$unmatched_tweets",
+        "output_config": {
+          "format": "json",
+          "include_slack_notifications": true
+        }
+      },
+      "out": "$complaint_actions"
+    },
+    {
+      "id": "step7",
+      "op": "business_insights",
+      "description": "Generate comprehensive business insights from complaint data",
+      "in": {
+        "customer_data": "$matched_flights",
+        "focus_areas": [
+          "customer_experience",
+          "refund_policy",
+          "airline_performance"
+        ]
+      },
+      "out": "$final_insights"
     }
   ],
   "inputs": {
-    "file": "sandbox/in/twitter_airline_sentiment.csv"
+    "main_input": "twitter_airline_sentiment.csv"
   },
-  "_generated_at": "2025-09-14T11:05:13Z"
+  "_generated_at": "2025-09-14T12:02:38Z"
 }

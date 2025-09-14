@@ -1,0 +1,25 @@
+{
+  "program": [
+    [
+      "CALL_TOOL",
+      "read_csv",
+      {
+        "input": "sandbox/in/data.csv"
+      },
+      {
+        "result": "$data"
+      }
+    ]
+  ],
+  "capabilities": [
+    "fs.read"
+  ],
+  "slots": {},
+  "metadata": {
+    "goal": "Test basic data analysis workflow",
+    "inputs": {
+      "dataset": "data.csv"
+    },
+    "compilation_mode": "tools"
+  }
+}

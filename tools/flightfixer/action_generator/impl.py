@@ -11,8 +11,9 @@ def execute(inputs, context):
     except ImportError as e:
         return {"error": f"Required library not available: {e}"}
 
-    refund_decisions_data = inputs["refund_decisions"]
-    unmatched_tweets_data = inputs.get("unmatched_tweets", {"rows": [], "header": []})
+    # Gracefully handle missing / None inputs passed through unresolved slots
+    refund_decisions_data = inputs.get("refund_decisions") or {"rows": [], "header": []}
+    unmatched_tweets_data = inputs.get("unmatched_tweets") or {"rows": [], "header": []}
     output_config = inputs.get("output_config", {
         "claims_format": "jsonl",
         "replies_format": "markdown",

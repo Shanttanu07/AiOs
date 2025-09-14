@@ -1,0 +1,19 @@
+{
+  "goal": "Debug read_csv output",
+  "capabilities": [
+    "fs.read"
+  ],
+  "steps": [
+    {
+      "id": "step1",
+      "op": "read_csv",
+      "description": "Load airline tweet data",
+      "in": "sandbox/in/twitter_airline_sentiment.csv",
+      "out": "$tweets_data"
+    }
+  ],
+  "inputs": {
+    "main_input": "twitter_airline_sentiment.csv"
+  },
+  "_generated_at": "2024-09-14T13:30:00Z"
+}

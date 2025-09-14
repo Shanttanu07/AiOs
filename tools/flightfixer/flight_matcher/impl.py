@@ -33,13 +33,51 @@ def execute(inputs, context):
         "confidence_distribution": {"0.9+": 0, "0.8-0.9": 0, "0.7-0.8": 0, "0.6-0.7": 0, "<0.6": 0}
     }
 
-    # Preprocess BTS data for faster matching
-    if 'FL_DATE' in flights_df.columns:
-        flights_df['FL_DATE'] = pd.to_datetime(flights_df['FL_DATE'])
-    if 'DATE_STR' in flights_df.columns:
-        flights_df['FL_DATE_STR'] = flights_df['DATE_STR']
-    else:
+    # Preprocess BTS data for faster matching (robust date normalization)
+    try:
+        # Prefer FL_DATE; fall back to DATE_STR; try common variants if needed
+        date_col = None
+        if 'FL_DATE' in flights_df.columns:
+            date_col = 'FL_DATE'
+        elif 'DATE_STR' in flights_df.columns:
+            date_col = 'DATE_STR'
+        elif 'DATE' in flights_df.columns:
+            date_col = 'DATE'
+
+        if date_col is None:
+            return {"error": "Missing required date column: FL_DATE / DATE_STR / DATE"}
+
+        # Coerce to datetime (errors -> NaT)
+        flights_df['__RAW_DATE__'] = flights_df[date_col]
+        flights_df['FL_DATE'] = pd.to_datetime(flights_df[date_col], errors='coerce', utc=False, infer_datetime_format=True)
+
+        # If all NaT, attempt parsing with common formats manually
+        if flights_df['FL_DATE'].isna().all():
+            parsed = []
+            for val in flights_df[date_col].astype(str).tolist():
+                dt_val = None
+                for fmt in ('%Y-%m-%d', '%m/%d/%Y', '%Y/%m/%d', '%d-%b-%Y'):
+                    try:
+                        dt_val = datetime.strptime(val.strip(), fmt)
+                        break
+                    except Exception:
+                        continue
+                parsed.append(dt_val)
+            flights_df['FL_DATE'] = parsed
+
+        # Drop rows without valid date (keep a copy for stats if needed)
+        invalid_dates = flights_df['FL_DATE'].isna().sum()
+        if invalid_dates > 0:
+            print(f"[flight_matcher] Warning: {invalid_dates} flight rows missing valid FL_DATE after coercion; they will be ignored")
+            flights_df = flights_df[~flights_df['FL_DATE'].isna()].copy()
+
+        if flights_df.empty:
+            return {"error": "No valid flight rows after date parsing"}
+
+        # Create normalized date string column
         flights_df['FL_DATE_STR'] = flights_df['FL_DATE'].dt.strftime('%Y-%m-%d')
+    except Exception as e:
+        return {"error": f"Date normalization failed: {e}"}
 
     # Create flight lookup dictionary for faster matching
     flight_lookup = {}
@@ -171,7 +209,7 @@ def execute(inputs, context):
             consistency_bonus = 0.0
 
             # Check if incident type matches flight performance
-            tweet_incident = tweet_data.get('incident_type', '').lower()
+            tweet_incident = str(tweet_data.get('incident_type', '') or '').lower()
             flight_cancelled = best_flight_data['data'].get('IS_CANCELLED', False)
             flight_delayed = best_flight_data['data'].get('SIGNIFICANT_DELAY', False)
 

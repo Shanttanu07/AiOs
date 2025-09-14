@@ -1,6 +1,6 @@
 {
   "cache_key": "9387e6955aa11a1ba17210a93bebf7fe546178a5a70c5bb8c263f6f35821ecbb",
-  "timestamp": "2025-09-14T11:27:31.218825Z",
+  "timestamp": "2025-09-14T12:20:48.357078Z",
   "model": "claude-3-5-haiku-20241022",
   "inputs": {
     "model": "claude-3-5-haiku-20241022",
@@ -14,18 +14,18 @@
     ]
   },
   "outputs": {
-    "response_text": "{\n  \"goal_analysis\": {\n    \"intent\": \"Analyze sample data and generate insights report\",\n    \"complexity\": \"medium\", \n    \"task_type\": \"data_processing\"\n  },\n  \"steps\": [\n    {\n      \"id\": \"step1\",\n      \"op\": \"read_csv\",\n      \"description\": \"Load input CSV file\",\n      \"in\": \"sandbox/in/data.csv\",\n      \"out\": \"$input_data\"\n    },\n    {\n      \"id\": \"step2\", \n      \"op\": \"profile\",\n      \"description\": \"Profile dataset to understand schema and statistics\",\n      \"in\": {\"table\": \"$input_data\"},\n      \"out\": \"$data_schema\"\n    },\n    {\n      \"id\": \"step3\",\n      \"op\": \"resolve_conflicts\", \n      \"description\": \"Clean and reconcile any potential data conflicts\",\n      \"in\": {\n        \"crm_data\": \"$input_data\",\n        \"support_data\": \"$input_data\",\n        \"payment_data\": \"$input_data\",\n        \"confidence_threshold\": 0.7\n      },\n      \"out\": \"$cleaned_data\"\n    },\n    {\n      \"id\": \"step4\",\n      \"op\": \"business_insights\",\n      \"description\": \"Generate actionable business insights from cleaned data\",\n      \"in\": {\n        \"customer_data\": \"$cleaned_data\", \n        \"focus_areas\": [\"overall_trends\", \"data_quality\"]\n      },\n      \"out\": \"$insights\"\n    },\n    {\n      \"id\": \"step5\", \n      \"op\": \"emit_report\",\n      \"description\": \"Create markdown report with schema and insights\",\n      \"in\": {\n        \"schema\": \"$data_schema\",\n        \"metrics\": \"$insights\"\n      },\n      \"out\": \"sandbox/out/data_analysis_report.md\"\n    }\n  ],\n  \"inputs\": {\n    \"main_input\": \"data.csv\"\n  },\n  \"outputs\": {\n    \"final_result\": \"sandbox/out/data_analysis_report.md\"\n  },\n  \"capabilities\": [\"fs.read\", \"fs.write\"]\n}",
+    "response_text": "{\n  \"goal_analysis\": {\n    \"intent\": \"Analyze sample data and generate insights report\",\n    \"complexity\": \"medium\", \n    \"task_type\": \"data_processing\"\n  },\n  \"steps\": [\n    {\n      \"id\": \"step1\", \n      \"op\": \"read_csv\",\n      \"description\": \"Load input CSV file\",\n      \"in\": \"sandbox/in/data.csv\",\n      \"out\": \"$raw_data\"\n    },\n    {\n      \"id\": \"step2\",\n      \"op\": \"profile\", \n      \"description\": \"Profile dataset schema and generate metadata\",\n      \"in\": {\"table\": \"$raw_data\"},\n      \"out\": \"$data_schema\"\n    },\n    {\n      \"id\": \"step3\", \n      \"op\": \"resolve_conflicts\",\n      \"description\": \"Clean and reconcile data\",\n      \"in\": {\n        \"crm_data\": \"$raw_data\",\n        \"support_data\": \"$raw_data\", \n        \"payment_data\": \"$raw_data\",\n        \"confidence_threshold\": 0.7\n      },\n      \"out\": \"$clean_data\"\n    },\n    {\n      \"id\": \"step4\",\n      \"op\": \"business_insights\",\n      \"description\": \"Generate actionable business insights\",\n      \"in\": {\n        \"customer_data\": \"$clean_data\", \n        \"focus_areas\": [\"data_quality\", \"trends\"]\n      },\n      \"out\": \"$insights\"\n    },\n    {\n      \"id\": \"step5\", \n      \"op\": \"emit_report\",\n      \"description\": \"Create markdown report of findings\",\n      \"in\": {\n        \"schema\": \"$data_schema\", \n        \"metrics\": \"$insights\"\n      },\n      \"out\": \"sandbox/out/data_insights_report.md\"\n    }\n  ],\n  \"inputs\": {\n    \"main_input\": \"data.csv\"\n  },\n  \"outputs\": {\n    \"final_result\": \"sandbox/out/data_insights_report.md\"\n  },\n  \"capabilities\": [\"fs.read\", \"fs.write\"]\n}",
     "usage": {
       "input": 3660,
-      "output": 528
+      "output": 520
     }
   },
   "tokens": {
     "input": 3660,
-    "output": 528,
-    "total": 4188
+    "output": 520,
+    "total": 4180
   },
-  "latency_ms": 7333.5278034210205,
-  "cost_usd": 0.004716,
-  "co2_grams": 8.376
+  "latency_ms": 12471.672534942627,
+  "cost_usd": 0.004699999999999999,
+  "co2_grams": 8.36
 }

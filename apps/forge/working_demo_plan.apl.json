@@ -1,0 +1,42 @@
+{
+  "goal": "Analyze airline complaint data and generate insights report",
+  "capabilities": [
+    "fs.read",
+    "fs.write"
+  ],
+  "steps": [
+    {
+      "id": "step1",
+      "op": "read_csv",
+      "description": "Load airline complaint data",
+      "in": "sandbox/in/twitter_airline_sentiment.csv",
+      "out": "$complaint_data"
+    },
+    {
+      "id": "step2",
+      "op": "profile",
+      "description": "Profile the complaint dataset schema and statistics",
+      "in": "$complaint_data",
+      "out": "$data_profile"
+    },
+    {
+      "id": "step3",
+      "op": "read_csv",
+      "description": "Load BTS flight performance data",
+      "in": "sandbox/in/bts_ontime_feb2015.csv",
+      "out": "$flight_data"
+    },
+    {
+      "id": "step4",
+      "op": "profile",
+      "description": "Profile the flight performance dataset",
+      "in": "$flight_data",
+      "out": "$flight_profile"
+    }
+  ],
+  "inputs": {
+    "complaint_data": "sandbox/in/twitter_airline_sentiment.csv",
+    "flight_data": "sandbox/in/bts_ontime_feb2015.csv"
+  },
+  "_generated_at": "2025-09-14T17:25:00Z"
+}
