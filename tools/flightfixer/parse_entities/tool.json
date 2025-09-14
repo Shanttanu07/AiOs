@@ -1,0 +1,34 @@
+{
+  "name": "parse_entities",
+  "version": "1.0.0",
+  "description": "Extract flight numbers, dates, airports, and incident details from messy complaint tweets using regex + LLM fallback",
+  "category": "flightfixer",
+  "inputs": {
+    "tweets": {
+      "type": "table",
+      "description": "Tweet data with text column containing complaint messages"
+    },
+    "confidence_threshold": {
+      "type": "number",
+      "description": "Minimum confidence score for entity extraction (0.0-1.0)",
+      "default": 0.6
+    },
+    "use_llm_fallback": {
+      "type": "boolean",
+      "description": "Use LLM for ambiguous cases where regex fails",
+      "default": true
+    }
+  },
+  "outputs": {
+    "parsed_tweets": {
+      "type": "table",
+      "description": "Tweets with extracted entities: flight_number, flight_date, origin, destination, incident_type"
+    },
+    "extraction_stats": {
+      "type": "object",
+      "description": "Statistics on entity extraction success rates and confidence scores"
+    }
+  },
+  "capabilities": ["model.call"],
+  "implementation": "tools/flightfixer/parse_entities/impl.py"
+}

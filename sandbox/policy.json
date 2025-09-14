@@ -27,6 +27,9 @@
     },
     "e41f4ff57dae": {
       "fs.read": true
+    },
+    "b34dff67ebde": {
+      "fs.read": true
     }
   },
   "limits": {

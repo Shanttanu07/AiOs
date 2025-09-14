@@ -1,0 +1,39 @@
+{
+  "name": "tweets_load",
+  "version": "1.0.0",
+  "description": "Load Twitter airline sentiment data from CSV/JSON files with complaint analysis",
+  "category": "flightfixer",
+  "inputs": {
+    "dataset_path": {
+      "type": "string",
+      "description": "Path to Twitter airline sentiment dataset (CSV or JSON)"
+    },
+    "target_airlines": {
+      "type": "array",
+      "description": "Filter to specific airline handles (e.g., ['@united', '@AmericanAir'])",
+      "default": ["@united", "@AmericanAir", "@Delta", "@SouthwestAir", "@JetBlue", "@USAirways"]
+    },
+    "date_range": {
+      "type": "object",
+      "description": "Filter tweets by date range {start: 'YYYY-MM-DD', end: 'YYYY-MM-DD'}",
+      "default": null
+    },
+    "sentiment_filter": {
+      "type": "array",
+      "description": "Filter by sentiment categories",
+      "default": ["negative"]
+    }
+  },
+  "outputs": {
+    "tweets": {
+      "type": "table",
+      "description": "Loaded and filtered tweet data with complaint text, dates, airline handles"
+    },
+    "stats": {
+      "type": "object",
+      "description": "Dataset statistics (count by airline, date range, sentiment distribution)"
+    }
+  },
+  "capabilities": ["fs.read"],
+  "implementation": "tools/flightfixer/tweets_load/impl.py"
+}

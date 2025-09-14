@@ -1,0 +1,46 @@
+{
+  "name": "action_generator",
+  "version": "1.0.0",
+  "description": "Generate actionable outputs: refund claim JSON, customer reply drafts, and Slack notifications for airline complaint processing",
+  "category": "flightfixer",
+  "inputs": {
+    "refund_decisions": {
+      "type": "table",
+      "description": "Refund eligibility decisions with DOT rule analysis"
+    },
+    "unmatched_tweets": {
+      "type": "table",
+      "description": "Tweets that couldn't be matched to flight data"
+    },
+    "output_config": {
+      "type": "object",
+      "description": "Output format configuration",
+      "default": {
+        "claims_format": "jsonl",
+        "replies_format": "markdown",
+        "slack_format": "blocks",
+        "include_legal_disclaimer": true
+      }
+    }
+  },
+  "outputs": {
+    "refund_claims": {
+      "type": "object",
+      "description": "Structured refund claims data for processing systems"
+    },
+    "customer_replies": {
+      "type": "object",
+      "description": "Draft customer response messages with DOT rule citations"
+    },
+    "slack_notification": {
+      "type": "object",
+      "description": "Slack Block Kit payload for operations team notification"
+    },
+    "action_summary": {
+      "type": "object",
+      "description": "Summary of all generated actions and next steps"
+    }
+  },
+  "capabilities": ["fs.write"],
+  "implementation": "tools/flightfixer/action_generator/impl.py"
+}

@@ -1,0 +1,42 @@
+{
+  "name": "flight_matcher",
+  "version": "1.0.0",
+  "description": "Match parsed tweets with BTS flight performance data using fuzzy matching with confidence scoring",
+  "category": "flightfixer",
+  "inputs": {
+    "parsed_tweets": {
+      "type": "table",
+      "description": "Parsed tweets with extracted flight numbers, dates, and airports"
+    },
+    "flight_performance": {
+      "type": "table",
+      "description": "BTS on-time performance data"
+    },
+    "match_confidence_threshold": {
+      "type": "number",
+      "description": "Minimum confidence score for flight matching (0.0-1.0)",
+      "default": 0.7
+    },
+    "date_tolerance_days": {
+      "type": "integer",
+      "description": "Allow matching flights within +/- N days of tweet date",
+      "default": 1
+    }
+  },
+  "outputs": {
+    "matched_flights": {
+      "type": "table",
+      "description": "Tweets matched with BTS flight data, including match confidence and performance details"
+    },
+    "unmatched_tweets": {
+      "type": "table",
+      "description": "Tweets that could not be matched to BTS data (need more info)"
+    },
+    "match_stats": {
+      "type": "object",
+      "description": "Statistics on matching success rates and confidence distribution"
+    }
+  },
+  "capabilities": [],
+  "implementation": "tools/flightfixer/flight_matcher/impl.py"
+}

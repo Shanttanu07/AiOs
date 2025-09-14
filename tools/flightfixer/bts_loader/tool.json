@@ -1,0 +1,34 @@
+{
+  "name": "bts_loader",
+  "version": "1.0.0",
+  "description": "Load and process Bureau of Transportation Statistics (BTS) on-time performance data for flight validation",
+  "category": "flightfixer",
+  "inputs": {
+    "bts_data_path": {
+      "type": "string",
+      "description": "Path to BTS on-time performance CSV file (download from TransStats)"
+    },
+    "month_filter": {
+      "type": "string",
+      "description": "Filter to specific month (YYYY-MM format)",
+      "default": null
+    },
+    "carriers": {
+      "type": "array",
+      "description": "Filter to specific carrier codes (e.g., ['UA', 'AA', 'DL'])",
+      "default": null
+    }
+  },
+  "outputs": {
+    "flight_performance": {
+      "type": "table",
+      "description": "BTS on-time performance data with carrier, flight number, date, delays, cancellations"
+    },
+    "performance_stats": {
+      "type": "object",
+      "description": "Summary statistics of flight performance (delay rates, cancellation rates by carrier)"
+    }
+  },
+  "capabilities": ["fs.read"],
+  "implementation": "tools/flightfixer/bts_loader/impl.py"
+}

@@ -19,8 +19,7 @@ class APIKeyManager:
     def get_claude_api_key() -> Optional[str]:
         """Get Claude API key from environment or user input"""
         # Try environment variable first
-        api_key = "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"
-        # os.getenv('ANTHROPIC_API_KEY')
+        api_key = os.getenv('ANTHROPIC_API_KEY')
         if api_key:
             return api_key
 
@@ -398,7 +397,7 @@ Important constraints:
                 id="load",
                 tool="read_csv" if input_file.endswith('.csv') else "read_file",
                 inputs={"path": f"sandbox/in/{input_file}"},
-                outputs={"data": "$data"},
+                outputs={"table": "$data"},  # Use correct output name
                 description=f"Load {input_file}"
             ))
 
@@ -408,7 +407,7 @@ Important constraints:
                     id="analyze",
                     tool="profile",
                     inputs={"table": "$data"},
-                    outputs={"summary": "$summary"},
+                    outputs={"schema": "$summary"},  # Use correct output name
                     description="Analyze data structure"
                 ))
 

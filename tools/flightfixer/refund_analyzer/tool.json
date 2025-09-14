@@ -1,0 +1,35 @@
+{
+  "name": "refund_analyzer",
+  "version": "1.0.0",
+  "description": "Apply DOT 2024 refund rules to determine passenger refund eligibility with detailed reasoning and evidence",
+  "category": "flightfixer",
+  "inputs": {
+    "matched_flights": {
+      "type": "table",
+      "description": "Tweets matched with BTS flight performance data"
+    },
+    "dot_rules_config": {
+      "type": "object",
+      "description": "DOT refund rule configuration (thresholds, exceptions, etc.)",
+      "default": {
+        "domestic_significant_delay_minutes": 180,
+        "international_significant_delay_minutes": 360,
+        "automatic_refund_required": true,
+        "baggage_delay_hours": 12,
+        "wifi_refund_threshold_percent": 50
+      }
+    }
+  },
+  "outputs": {
+    "refund_decisions": {
+      "type": "table",
+      "description": "Refund eligibility decisions with DOT rule citations, evidence, and recommended actions"
+    },
+    "refund_summary": {
+      "type": "object",
+      "description": "Summary statistics of refund eligibility by airline, incident type, and amounts"
+    }
+  },
+  "capabilities": [],
+  "implementation": "tools/flightfixer/refund_analyzer/impl.py"
+}

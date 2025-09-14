@@ -97,24 +97,51 @@ class ActivityUI:
         self._render_policy(policy_win)
         self._render_logs(logs_win)
 
-        # Header with carbon footprint
+        # Prominent header with carbon footprint and cost tracking
         current_stats = self.meter.get_current_run_stats()
-        co2_grams = current_stats.get('total_co2_grams', 0) if current_stats["status"] == "active_run" else 0
-        cost_usd = current_stats.get('total_cost_usd', 0) if current_stats["status"] == "active_run" else 0
+        historical = self.meter.get_historical_stats()
+        totals = historical.get("totals", {})
 
-        # Create header with carbon info
-        header_text = " AI-OS :: Task-Agnostic Automation Platform "
-        carbon_info = f" CO2: {co2_grams:.1f}g | Cost: ${cost_usd:.4f} "
+        if current_stats["status"] == "active_run":
+            # Active run - show current metrics prominently
+            co2_grams = current_stats.get('total_co2_grams', 0)
+            cost_usd = current_stats.get('total_cost_usd', 0)
+            tokens = current_stats.get('total_tokens', 0)
+            tools_count = current_stats.get('tools_executed', 0)
 
-        # Center main header
-        self.stdscr.addstr(0, 2, header_text.center(w-4))
+            # Create prominent carbon/cost header
+            main_header = f" AI-OS :: Real-Time Demo [ACTIVE] "
+            metrics = f" CO2: {co2_grams:.2f}g | ${cost_usd:.6f} | {tokens} tokens | {tools_count} tools "
 
-        # Add carbon info in top-right if there's space
-        if len(carbon_info) < w - len(header_text) - 4:
+            # Use reverse video for active run to make it stand out
             try:
-                self.stdscr.addstr(0, w - len(carbon_info) - 2, carbon_info)
+                self.stdscr.attron(curses.A_REVERSE)
+                header_display = (main_header + metrics).center(w-2)[:w-2]
+                self.stdscr.addstr(0, 1, header_display)
+                self.stdscr.attroff(curses.A_REVERSE)
             except curses.error:
                 pass
+        else:
+            # No active run - show historical totals
+            total_co2 = totals.get('total_co2_grams', 0)
+            total_cost = totals.get('total_cost_usd', 0)
+            total_runs = totals.get('runs_analyzed', 0)
+
+            main_header = f" AI-OS :: Task-Agnostic Demo Platform "
+            historical_info = f" Total: {total_co2:.1f}g CO2 | ${total_cost:.6f} | {total_runs} runs "
+
+            # Center the combined header
+            combined = main_header + historical_info
+            if len(combined) <= w-4:
+                self.stdscr.addstr(0, 2, combined.center(w-4))
+            else:
+                # Split across two parts if too long
+                self.stdscr.addstr(0, 2, main_header.center(w-4))
+                if len(historical_info) < w-4:
+                    try:
+                        self.stdscr.addstr(0, w - len(historical_info) - 2, historical_info)
+                    except curses.error:
+                        pass
 
         # footer
         footer = "[g]enerate plan [v]iew DAG [d]ry-run [e]xecute [p]ack [r]eplay [u]ndo [c]ost analysis [q]uit"
@@ -337,63 +364,105 @@ class ActivityUI:
                 self._add_line(win, y, x, line); y += 1
 
     def _render_policy(self, win):
-        # show carbon/cost meters and quota usage
+        # Enhanced carbon/cost meters with progress visualization
         y, x = 1, 2
-        def add(line: str = "", bold=False):
+        max_h, max_w = win.getmaxyx()
+
+        def add(line: str = "", bold=False, highlight=False):
             nonlocal y
-            if y >= win.getmaxyx()[0] - 1:
+            if y >= max_h - 1:
                 return
-            self._add_line(win, y, x, line[:win.getmaxyx()[1]-4], bold=bold)
+            try:
+                if highlight: win.attron(curses.A_REVERSE)
+                elif bold: win.attron(curses.A_BOLD)
+                win.addstr(y, x, line[:max_w-4])
+                if highlight: win.attroff(curses.A_REVERSE)
+                elif bold: win.attroff(curses.A_BOLD)
+            except curses.error:
+                pass
             y += 1
 
-        # Current run metrics
+        def add_meter_bar(label: str, current: float, threshold: float, unit: str = ""):
+            nonlocal y
+            if y >= max_h - 2:
+                return
+
+            # Calculate bar width (leave space for label and values)
+            bar_width = min(20, max_w - len(label) - 20)
+            if bar_width < 5:
+                return
+
+            # Calculate fill percentage
+            fill_ratio = min(1.0, current / threshold) if threshold > 0 else 0
+            fill_chars = int(fill_ratio * bar_width)
+
+            # Create progress bar
+            bar = "█" * fill_chars + "░" * (bar_width - fill_chars)
+
+            # Format values
+            current_str = f"{current:.3f}{unit}" if current < 1 else f"{current:.2f}{unit}"
+
+            # Color coding based on usage
+            is_high = fill_ratio > 0.8
+            meter_line = f"{label}: [{bar}] {current_str}"
+
+            add(meter_line, bold=is_high, highlight=is_high and current_stats["status"] == "active_run")
+
+        # Current run metrics with visual meters
         current_stats = self.meter.get_current_run_stats()
-        add("CURRENT RUN METRICS", bold=True)
 
         if current_stats["status"] == "active_run":
-            add(f"Run ID: {current_stats['run_id'][:12]}...")
-            add(f"Tools: {current_stats['tools_executed']}")
-            add(f"Cost: ${current_stats['total_cost_usd']:.6f}")
-            add(f"CO2: {current_stats['total_co2_grams']:.2f}g")
-            add(f"Tokens: {current_stats['total_tokens']}")
-            add(f"Cache: {current_stats['cache_hit_rate']:.1f}%")
-            runtime = current_stats.get('runtime_seconds', 0)
-            add(f"Runtime: {runtime:.1f}s")
-        else:
-            add("  No active run")
-        add()
+            add("🔥 LIVE RUN METRICS", bold=True, highlight=True)
+            run_id_short = current_stats['run_id'][:8]
+            add(f"Run: {run_id_short}... | Tools: {current_stats['tools_executed']}")
 
-        # Historical totals
+            # Visual cost meter (threshold: $1.00)
+            cost = current_stats['total_cost_usd']
+            add_meter_bar("Cost", cost, 1.0, "$")
+
+            # Visual CO2 meter (threshold: 50g)
+            co2 = current_stats['total_co2_grams']
+            add_meter_bar("CO2 ", co2, 50.0, "g")
+
+            # Efficiency indicators
+            cache_rate = current_stats.get('cache_hit_rate', 0)
+            add_meter_bar("Cache", cache_rate, 100.0, "%")
+
+            # Runtime with live update feel
+            runtime = current_stats.get('runtime_seconds', 0)
+            add(f"Runtime: {runtime:.1f}s | Tokens: {current_stats['total_tokens']}")
+            add()
+
+            # Impact assessment
+            if co2 < 1 and cost < 0.01:
+                add("Impact: 🟢 MINIMAL", bold=True)
+            elif co2 < 10 and cost < 0.1:
+                add("Impact: 🟡 MODERATE", bold=True)
+            else:
+                add("Impact: 🔴 SIGNIFICANT", bold=True)
+
+        else:
+            add("⏸️  STANDBY MODE", bold=True)
+            add("  Waiting for execution...")
+            add()
+
+        # Historical context (compact)
         historical = self.meter.get_historical_stats(limit=5)
         totals = historical.get("totals", {})
-        add("HISTORICAL TOTALS", bold=True)
-        add(f"Total runs: {totals.get('runs_analyzed', 0)}")
-        add(f"Total cost: ${totals.get('total_cost_usd', 0):.6f}")
-        add(f"Total CO2: {totals.get('total_co2_grams', 0):.2f}g")
-        add(f"Avg cost/run: ${totals.get('avg_cost_per_run', 0):.6f}")
-        add(f"Avg CO2/run: {totals.get('avg_co2_per_run', 0):.2f}g")
-        add()
 
-        # Efficiency indicators
-        add("EFFICIENCY", bold=True)
-        cache_rate = current_stats.get('cache_hit_rate', 0) if current_stats["status"] == "active_run" else 0
-        if cache_rate >= 80:
-            add(f"Cache: {cache_rate:.1f}% EXCELLENT")
-        elif cache_rate >= 50:
-            add(f"Cache: {cache_rate:.1f}% GOOD")
-        elif cache_rate > 0:
-            add(f"Cache: {cache_rate:.1f}% POOR")
-        else:
-            add(f"Cache: {cache_rate:.1f}% NONE")
+        if totals.get('runs_analyzed', 0) > 0:
+            add("📊 HISTORICAL TOTALS", bold=True)
+            add(f"Runs: {totals.get('runs_analyzed', 0)} | Total: ${totals.get('total_cost_usd', 0):.6f}")
+            add(f"CO2 Total: {totals.get('total_co2_grams', 0):.1f}g")
+            add(f"Avg/run: ${totals.get('avg_cost_per_run', 0):.6f} | {totals.get('avg_co2_per_run', 0):.1f}g")
+            add()
 
-        # CO2 impact rating
-        co2 = current_stats.get('total_co2_grams', 0) if current_stats["status"] == "active_run" else 0
-        if co2 < 1:
-            add("Impact: LOW")
-        elif co2 < 10:
-            add("Impact: MEDIUM")
+        # Demo status
+        if current_stats["status"] == "active_run":
+            add("🎯 DEMO READY", bold=True)
         else:
-            add("Impact: HIGH")
+            add("🎬 READY FOR DEMO", bold=True)
+            add("Press [g] to generate plan or [e] to execute")
 
     def _render_logs(self, win):
         # show last ~100 lines from tx.jsonl (compact)

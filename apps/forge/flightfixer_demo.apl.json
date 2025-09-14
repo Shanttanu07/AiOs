@@ -1,0 +1,101 @@
+{
+  "goal": "FlightFixer: Transform messy airline complaints into actionable refund claims using real BTS data and DOT 2024 rules",
+  "capabilities": ["fs.read", "fs.write", "model.call"],
+  "steps": [
+    {
+      "id": "load_complaints",
+      "op": "tweets_load",
+      "description": "Load Twitter airline sentiment data with complaint filtering",
+      "in": {
+        "dataset_path": "sandbox/in/twitter_airline_sentiment.csv",
+        "target_airlines": ["@united", "@AmericanAir", "@Delta", "@SouthwestAir"],
+        "date_range": {"start": "2015-02-01", "end": "2015-02-28"},
+        "sentiment_filter": ["negative"]
+      },
+      "out": "$complaint_tweets"
+    },
+    {
+      "id": "parse_flight_details",
+      "op": "parse_entities",
+      "description": "Extract flight numbers, dates, airports from messy complaint text using regex + LLM",
+      "in": {
+        "tweets": "$complaint_tweets",
+        "confidence_threshold": 0.6,
+        "use_llm_fallback": true
+      },
+      "out": "$parsed_complaints"
+    },
+    {
+      "id": "load_bts_data",
+      "op": "bts_loader",
+      "description": "Load official BTS on-time performance data for validation",
+      "in": {
+        "bts_data_path": "sandbox/in/bts_ontime_feb2015.csv",
+        "month_filter": "2015-02",
+        "carriers": ["UA", "AA", "DL", "WN"]
+      },
+      "out": "$flight_performance"
+    },
+    {
+      "id": "match_complaints_to_flights",
+      "op": "flight_matcher",
+      "description": "Match parsed complaints with BTS flight data using fuzzy matching",
+      "in": {
+        "parsed_tweets": "$parsed_complaints",
+        "flight_performance": "$flight_performance",
+        "match_confidence_threshold": 0.7,
+        "date_tolerance_days": 1
+      },
+      "out": "$matched_flights"
+    },
+    {
+      "id": "analyze_refund_eligibility",
+      "op": "refund_analyzer",
+      "description": "Apply DOT 2024 refund rules to determine passenger eligibility with legal citations",
+      "in": {
+        "matched_flights": "$matched_flights",
+        "dot_rules_config": {
+          "domestic_significant_delay_minutes": 180,
+          "international_significant_delay_minutes": 360,
+          "automatic_refund_required": true
+        }
+      },
+      "out": "$refund_decisions"
+    },
+    {
+      "id": "generate_actions",
+      "op": "action_generator",
+      "description": "Create refund claims JSON, customer reply drafts, and Slack notifications",
+      "in": {
+        "refund_decisions": "$refund_decisions",
+        "unmatched_tweets": "$unmatched_tweets",
+        "output_config": {
+          "claims_format": "jsonl",
+          "replies_format": "markdown",
+          "include_legal_disclaimer": true
+        }
+      },
+      "out": "$actionable_outputs"
+    }
+  ],
+  "inputs": {
+    "twitter_dataset": "sandbox/in/twitter_airline_sentiment.csv",
+    "bts_data": "sandbox/in/bts_ontime_feb2015.csv"
+  },
+  "outputs": {
+    "refund_claims": "sandbox/out/refund_claims.jsonl",
+    "customer_replies": "sandbox/out/customer_replies/",
+    "ops_slack_notification": "sandbox/out/slack_notification.json"
+  },
+  "verify": [
+    {
+      "op": "verify_file_exists",
+      "target": "sandbox/out/refund_claims.jsonl"
+    },
+    {
+      "op": "verify_nonempty",
+      "target": "sandbox/out/slack_notification.json"
+    }
+  ],
+  "_generated_at": "2025-01-14T10:30:00Z"
+}

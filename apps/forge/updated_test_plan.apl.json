@@ -1,19 +1,19 @@
 {
-  "goal": "Process airline complaint tweets and match them with flight data to identify refund eligibility using DOT 2024 rules",
+  "goal": "Process airline complaint tweets and match them with flight data to identify refund eligibility",
   "capabilities": [
     "fs.read"
   ],
   "steps": [
     {
       "id": "load",
-      "op": "load_csv",
+      "op": "read_csv",
       "description": "Load twitter_airline_sentiment.csv",
       "in": "sandbox/in/twitter_airline_sentiment.csv",
       "out": "$data"
     },
     {
       "id": "analyze",
-      "op": "profile_schema",
+      "op": "profile",
       "description": "Analyze data structure",
       "in": "$data",
       "out": "$summary"
@@ -22,5 +22,5 @@
   "inputs": {
     "file": "sandbox/in/twitter_airline_sentiment.csv"
   },
-  "_generated_at": "2025-09-14T10:55:25Z"
+  "_generated_at": "2025-09-14T10:57:49Z"
 }

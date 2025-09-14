@@ -1,0 +1,35 @@
+{
+  "program": [
+    [
+      "CALL_TOOL",
+      "read_csv",
+      {
+        "input": "sandbox/in/twitter_airline_sentiment.csv"
+      },
+      {
+        "result": "$data"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "profile",
+      {
+        "data": "$data"
+      },
+      {
+        "result": "$summary"
+      }
+    ]
+  ],
+  "capabilities": [
+    "fs.read"
+  ],
+  "slots": {},
+  "metadata": {
+    "goal": "Process airline complaint tweets and match them with flight data to identify refund eligibility",
+    "inputs": {
+      "file": "sandbox/in/twitter_airline_sentiment.csv"
+    },
+    "compilation_mode": "tools"
+  }
+}

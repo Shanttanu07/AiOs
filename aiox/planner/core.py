@@ -52,3 +52,7 @@ class PlanGenerator:
 
         # Use LLM planner for task-agnostic planning
         return self.llm_planner.plan_workflow(goal, **context)
+
+    def get_tools_registry(self):
+        """Get access to the tools registry for APL conversion"""
+        return self.tools

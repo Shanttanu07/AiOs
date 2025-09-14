@@ -2,34 +2,116 @@
   "program": [
     [
       "CALL_TOOL",
-      "resolve_conflicts",
+      "tweets_load",
       {
-        "crm_data": "sandbox/in/crm_customers.csv"
+        "dataset_path": "sandbox/in/airline_complaints.csv",
+        "target_airlines": [
+          "@united",
+          "@AmericanAir",
+          "@DeltaAir"
+        ],
+        "sentiment_filter": [
+          "negative"
+        ]
       },
       {
-        "result": "$clean_data"
+        "result": "$complaint_tweets"
       }
     ],
     [
       "CALL_TOOL",
-      "business_insights",
+      "parse_entities",
       {
-        "customer_data": "$clean_data"
+        "tweets": "$complaint_tweets",
+        "confidence_threshold": 0.7,
+        "use_llm_fallback": true
       },
       {
-        "result": "$insights"
+        "result": "$parsed_tweets"
       }
+    ],
+    [
+      "CALL_TOOL",
+      "bts_loader",
+      {
+        "bts_data_path": "sandbox/in/bts_flight_data.csv",
+        "month_filter": "2024-01",
+        "carriers": [
+          "UA",
+          "AA",
+          "DL"
+        ]
+      },
+      {
+        "result": "$flight_performance"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "flight_matcher",
+      {
+        "parsed_tweets": "$parsed_tweets",
+        "flight_performance": "$flight_performance",
+        "match_confidence_threshold": 0.6,
+        "date_tolerance_days": 3
+      },
+      {
+        "result": "$matched_flights"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "refund_analyzer",
+      {
+        "matched_flights": "$matched_flights",
+        "dot_rules_config": {
+          "delay_threshold": 3,
+          "cancellation_threshold": 0.5
+        }
+      },
+      {
+        "result": "$refund_decisions"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "action_generator",
+      {
+        "refund_decisions": "$refund_decisions",
+        "unmatched_tweets": "$unmatched_tweets",
+        "output_config": {
+          "format": "json",
+          "include_details": true
+        }
+      },
+      {
+        "result": "$refund_claims"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "emit_report",
+      {
+        "schema": "S0",
+        "metrics": "S1",
+        "output_path": "sandbox/out/refund_recommendations.json"
+      },
+      {}
     ]
   ],
   "capabilities": [
     "fs.read",
-    "fs.write"
+    "fs.write",
+    "model.call"
   ],
-  "slots": {},
+  "slots": {
+    "refund_decisions": "S0",
+    "refund_claims": "S1"
+  },
   "metadata": {
-    "goal": "Clean and analyze customer database",
+    "goal": "Process airline complaints and identify refunds",
     "inputs": {
-      "main_input": "sandbox/in/crm_customers.csv"
+      "main_input": "sandbox/in/airline_complaints.csv"
     },
     "compilation_mode": "tools"
   }

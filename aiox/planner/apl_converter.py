@@ -8,90 +8,10 @@ from .core import ExecutionPlan, PlanStep
 class APLConverter:
     """Convert ExecutionPlan to APL JSON format"""
 
-    def __init__(self):
-        # Map tool names to APL operations (schema compliant ONLY)
-        self.tool_to_op = {
-            # Data loading operations
-            'read_csv': 'load_csv',
-            'load_csv': 'load_csv',
-
-            # Data analysis operations
-            'profile': 'profile_schema',
-            'profile_schema': 'profile_schema',
-            'analyze_data': 'profile_schema',
-
-            # Data processing operations
-            'split': 'split_deterministic',
-            'split_data': 'split_deterministic',
-            'split_deterministic': 'split_deterministic',
-
-            # Model training operations
-            'train': 'train_linear',
-            'train_lr': 'train_linear',
-            'train_linear': 'train_linear',
-            'train_linear_regression': 'train_linear',
-            'train_model': 'train_linear',
-
-            # Model evaluation operations
-            'eval': 'eval_metrics',
-            'evaluate': 'eval_metrics',
-            'eval_metrics': 'eval_metrics',
-            'evaluate_model': 'eval_metrics',
-            'test_model': 'eval_metrics',
-
-            # Reporting operations
-            'report': 'emit_report',
-            'emit_report': 'emit_report',
-            'emit_markdown_report': 'emit_report',
-            'generate_report': 'emit_report',
-            'create_report': 'emit_report',
-
-            # CLI building operations
-            'build_cli': 'build_cli',
-            'build_prediction_cli': 'build_cli',
-            'create_cli': 'build_cli',
-
-            # Packaging operations
-            'zip': 'bundle_zip',
-            'package': 'bundle_zip',
-            'bundle_zip': 'bundle_zip',
-            'zip_directory': 'bundle_zip',
-            'create_package': 'bundle_zip',
-
-            # Assertion/guard operations
-            'assert': 'guard',
-            'assert_ge': 'guard',
-            'assert_metric_ge': 'guard',
-            'check': 'guard',
-            'guard': 'guard',
-            'verify_performance': 'guard',
-
-            # Messy Data Resolution Operations
-            'resolve_conflicts': 'profile_schema',  # Map to profile until we extend APL
-            'conflict_resolution': 'profile_schema',
-            'deduplicate_customers': 'profile_schema',
-            'merge_duplicates': 'profile_schema',
-            'reconcile_data': 'profile_schema',
-            'clean_messy_data': 'profile_schema',
-
-            # Business Intelligence Operations
-            'business_insights': 'emit_report',
-            'generate_insights': 'emit_report',
-            'analyze_business_data': 'emit_report',
-            'actionable_insights': 'emit_report',
-            'risk_analysis': 'emit_report',
-
-            # Cross-Reference Operations
-            'cross_reference': 'profile_schema',
-            'validate_data': 'profile_schema',
-            'check_consistency': 'profile_schema',
-            'enterprise_validation': 'profile_schema',
-
-            # Verification operations (note: these are for verify section, not main steps)
-            'verify_zip': 'load_csv',  # Map to safe operation since verify ops go in verify section
-            'verify_zip_integrity': 'load_csv',
-            'verify_cli': 'load_csv'
-        }
+    def __init__(self, tools_registry=None):
+        self.tools_registry = tools_registry
+        # UPDATED: Use current tool names directly (no more legacy mappings)
+        # The schema is now dynamic, so we use actual discovered tool names
 
     def convert_to_apl(self, plan: ExecutionPlan) -> Dict[str, Any]:
         """Convert ExecutionPlan to APL JSON format (schema compliant only)"""
@@ -127,19 +47,12 @@ class APLConverter:
     def _convert_step(self, step: PlanStep, symbol_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
         """Convert a single PlanStep to APL step format"""
 
-        # Valid APL operations from schema
-        valid_ops = {
-            "load_csv", "profile_schema", "split_deterministic",
-            "train_linear", "eval_metrics", "emit_report",
-            "build_cli", "bundle_zip", "guard"
-        }
+        # Use tool name directly as operation (dynamic schema supports all discovered tools)
+        op = step.tool
 
-        # Map tool name to APL operation
-        op = self.tool_to_op.get(step.tool, step.tool)
-
-        # Skip steps with invalid operations
-        if op not in valid_ops:
-            print(f"Warning: Skipping invalid APL operation '{op}' from tool '{step.tool}'")
+        # Validate operation exists in tool registry if available
+        if self.tools_registry and not self.tools_registry.get_tool(op):
+            print(f"Warning: Tool '{op}' not found in registry")
             return None
 
         # Process inputs - resolve variable references

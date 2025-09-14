@@ -1,5 +1,5 @@
 {
-  "goal": "Clean and analyze customer database",
+  "goal": "Analyze sample data and generate insights report",
   "capabilities": [
     "fs.read",
     "fs.write"
@@ -7,68 +7,55 @@
   "steps": [
     {
       "id": "step1",
-      "op": "load_csv",
-      "description": "Load raw customer data from CRM CSV",
-      "in": "sandbox/in/crm_customers.csv",
-      "out": "$raw_customer_data"
+      "op": "read_csv",
+      "description": "Load input CSV file",
+      "in": "sandbox/in/data.csv",
+      "out": "$input_data"
     },
     {
       "id": "step2",
-      "op": "profile_schema",
-      "description": "Generate metadata and analyze dataset schema",
-      "in": "$raw_customer_data",
+      "op": "profile",
+      "description": "Profile dataset to understand schema and statistics",
+      "in": "$input_data",
       "out": "$data_schema"
     },
     {
       "id": "step3",
-      "op": "profile_schema",
-      "description": "Deduplicate and reconcile customer records",
+      "op": "resolve_conflicts",
+      "description": "Clean and reconcile any potential data conflicts",
       "in": {
-        "crm_data": "$raw_customer_data",
-        "confidence_threshold": 0.75
+        "crm_data": "$input_data",
+        "support_data": "$input_data",
+        "payment_data": "$input_data",
+        "confidence_threshold": 0.7
       },
-      "out": "$clean_customer_data"
+      "out": "$cleaned_data"
     },
     {
       "id": "step4",
-      "op": "profile_schema",
-      "description": "Validate data consistency across enterprise systems",
+      "op": "business_insights",
+      "description": "Generate actionable business insights from cleaned data",
       "in": {
-        "primary_source": "$clean_customer_data",
-        "reference_sources": [],
-        "match_fields": [
-          "email",
-          "customer_id"
-        ],
-        "validation_rules": {}
+        "customer_data": "$cleaned_data",
+        "focus_areas": [
+          "overall_trends",
+          "data_quality"
+        ]
       },
-      "out": "$validated_customer_data"
+      "out": "$insights"
     },
     {
       "id": "step5",
       "op": "emit_report",
-      "description": "Generate actionable business recommendations",
-      "in": {
-        "customer_data": "$validated_customer_data",
-        "focus_areas": [
-          "revenue",
-          "customer_retention"
-        ]
-      },
-      "out": "$customer_insights"
-    },
-    {
-      "id": "step6",
-      "op": "emit_report",
-      "description": "Create markdown report of findings",
+      "description": "Create markdown report with schema and insights",
       "in": {
         "schema": "$data_schema",
-        "metrics": "$customer_insights"
+        "metrics": "$insights"
       }
     }
   ],
   "inputs": {
-    "main_input": "sandbox/in/crm_customers.csv"
+    "main_input": "data.csv"
   },
-  "_generated_at": "2025-09-14T10:08:51Z"
+  "_generated_at": "2025-09-14T11:27:31Z"
 }
