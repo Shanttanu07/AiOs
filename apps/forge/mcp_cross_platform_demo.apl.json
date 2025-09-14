@@ -1,0 +1,64 @@
+{
+  "goal": "Cross-platform workflow automation with Slack, Gmail, and Notion",
+  "capabilities": ["mcp.call", "email.read", "slack.messages", "notion.write", "fs.write"],
+  "steps": [
+    {
+      "id": "fetch_emails",
+      "op": "gmail_search_emails",
+      "description": "Search for important emails from last week",
+      "in": {
+        "query": "is:important newer_than:7d",
+        "max_results": 50
+      },
+      "out": "$important_emails"
+    },
+    {
+      "id": "get_slack_messages",
+      "op": "slack_get_messages",
+      "description": "Fetch recent Slack messages from key channels",
+      "in": {
+        "channel": "#general",
+        "limit": 100,
+        "since": "7d"
+      },
+      "out": "$slack_messages"
+    },
+    {
+      "id": "analyze_communications",
+      "op": "business_insights",
+      "description": "Analyze cross-platform communication patterns",
+      "in": {
+        "email_data": "$important_emails",
+        "slack_data": "$slack_messages",
+        "focus_areas": ["communication_trends", "action_items", "priorities"]
+      },
+      "out": "$communication_insights"
+    },
+    {
+      "id": "create_notion_summary",
+      "op": "notion_create_page",
+      "description": "Create weekly summary page in Notion",
+      "in": {
+        "database_id": "weekly-summaries",
+        "title": "Weekly Communication Summary",
+        "content": "$communication_insights"
+      },
+      "out": "$notion_page"
+    },
+    {
+      "id": "send_summary_email",
+      "op": "gmail_send_email",
+      "description": "Email summary to team leads",
+      "in": {
+        "to": ["team-leads@company.com"],
+        "subject": "Weekly Communication Summary",
+        "body": "$communication_insights"
+      }
+    }
+  ],
+  "inputs": {
+    "email_query": "is:important newer_than:7d",
+    "slack_channel": "#general",
+    "notion_database": "weekly-summaries"
+  }
+}

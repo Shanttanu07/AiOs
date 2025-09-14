@@ -30,26 +30,26 @@ class ToolRegistry:
         self.loaded_modules: Dict[str, Any] = {}
 
     def discover_tools(self) -> int:
-        """Scan tools directory and load manifests"""
+        """Scan tools directory and load manifests (both tool.json and spec.json)"""
         discovered = 0
 
         if not self.tools_root.exists():
             return discovered
 
-        # Find all tool.json files
+        # Find all tool.json files (basic tools)
         for tool_json in self.tools_root.rglob("tool.json"):
             try:
                 manifest = json.loads(tool_json.read_text(encoding="utf-8"))
 
-                # Validate required fields
+                # Validate required fields for tool.json format
                 required = ["name", "version", "description", "category", "inputs", "outputs", "capabilities", "implementation"]
                 if not all(field in manifest for field in required):
-                    print(f"[tools] Invalid manifest: {tool_json} (missing required fields)")
+                    print(f"[tools] Invalid tool.json manifest: {tool_json} (missing required fields)")
                     continue
 
                 spec = ToolSpec(
                     name=manifest["name"],
-                    version=manifest["version"],
+                    version=manifest.get("version", "1.0.0"),
                     description=manifest["description"],
                     category=manifest["category"],
                     inputs=manifest["inputs"],
@@ -63,9 +63,42 @@ class ToolRegistry:
                 discovered += 1
 
             except Exception as e:
-                print(f"[tools] Failed to load manifest {tool_json}: {e}")
+                print(f"[tools] Failed to load tool.json manifest {tool_json}: {e}")
 
-        print(f"[tools] Discovered {discovered} tools")
+        # Find all spec.json files (advanced tools)
+        for spec_json in self.tools_root.rglob("spec.json"):
+            try:
+                manifest = json.loads(spec_json.read_text(encoding="utf-8"))
+
+                # Validate required fields for spec.json format (no version/implementation required)
+                required = ["name", "description", "category", "inputs", "outputs", "capabilities"]
+                if not all(field in manifest for field in required):
+                    print(f"[tools] Invalid spec.json manifest: {spec_json} (missing required fields)")
+                    continue
+
+                # For spec.json, derive implementation path from directory structure
+                tool_dir = spec_json.parent
+                impl_path = tool_dir / "impl.py"
+
+                spec = ToolSpec(
+                    name=manifest["name"],
+                    version=manifest.get("version", "1.0.0"),
+                    description=manifest["description"],
+                    category=manifest["category"],
+                    inputs=manifest["inputs"],
+                    outputs=manifest["outputs"],
+                    capabilities=manifest["capabilities"],
+                    implementation=str(impl_path.relative_to(self.tools_root.parent)),
+                    manifest_path=spec_json
+                )
+
+                self.tools[spec.name] = spec
+                discovered += 1
+
+            except Exception as e:
+                print(f"[tools] Failed to load spec.json manifest {spec_json}: {e}")
+
+        print(f"[tools] Discovered {discovered} tools ({len([p for p in self.tools_root.rglob('tool.json')])} basic + {len([p for p in self.tools_root.rglob('spec.json')])} advanced)")
         return discovered
 
     def get_tool(self, name: str) -> Optional[ToolSpec]:
@@ -88,6 +121,14 @@ class ToolRegistry:
             if tool:
                 capabilities.update(tool.capabilities)
         return capabilities
+
+    def get_all_tool_names(self) -> List[str]:
+        """Get all discovered tool names for APL schema generation"""
+        return list(self.tools.keys())
+
+    def get_tool_names_by_category(self, category: str) -> List[str]:
+        """Get tool names filtered by category"""
+        return [tool.name for tool in self.tools.values() if tool.category == category]
 
     def load_tool_module(self, tool_name: str) -> Optional[Any]:
         """Dynamically load tool implementation module"""

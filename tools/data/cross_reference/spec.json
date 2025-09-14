@@ -1,0 +1,40 @@
+{
+  "name": "cross_reference",
+  "category": "data",
+  "description": "Cross-reference and validate data consistency across multiple enterprise systems",
+  "inputs": {
+    "primary_source": {
+      "type": "table",
+      "description": "Primary data source (e.g., CRM system)"
+    },
+    "reference_sources": {
+      "type": "array",
+      "description": "Additional data sources to cross-reference against"
+    },
+    "match_fields": {
+      "type": "array",
+      "description": "Fields to use for matching across sources",
+      "default": ["id", "email", "name"]
+    },
+    "validation_rules": {
+      "type": "object",
+      "description": "Custom validation rules for data consistency",
+      "default": {}
+    }
+  },
+  "outputs": {
+    "validated_data": {
+      "type": "table",
+      "description": "Cross-referenced and validated dataset"
+    },
+    "discrepancies": {
+      "type": "array",
+      "description": "Found discrepancies with recommended actions"
+    },
+    "confidence_scores": {
+      "type": "object",
+      "description": "Confidence scores for data quality by record"
+    }
+  },
+  "capabilities": ["fs.read", "fs.write"]
+}

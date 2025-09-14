@@ -1,0 +1,25 @@
+name: search
+category: web
+description: Search the web for information on any topic
+capabilities: ["net.get"]
+
+inputs:
+  query:
+    type: string
+    description: Search query or research question
+  max_results:
+    type: number
+    description: Maximum number of results to return
+    default: 5
+  search_type:
+    type: string
+    description: Type of search (general, news, academic, images)
+    default: general
+
+outputs:
+  results:
+    type: array
+    description: List of search results with titles, URLs, and snippets
+  summary:
+    type: string
+    description: AI-generated summary of key findings

@@ -1,0 +1,30 @@
+{
+  "grants": {
+    "7501997c228a": {
+      "fs.read": true
+    },
+    "86e970d70847": {
+      "fs.read": true
+    },
+    "3f761d3de125": {
+      "fs.read": true
+    },
+    "0cabb320f575": {
+      "fs.read": true,
+      "fs.write": true
+    },
+    "eb465c677f1d": {
+      "fs.read": true,
+      "fs.write": true
+    },
+    "b34dff67ebde": {
+      "fs.read": true
+    }
+  },
+  "limits": {
+    "io_bytes": 52428800,
+    "files_written": 100,
+    "cpu_ms": 30000,
+    "model_calls": 10
+  }
+}

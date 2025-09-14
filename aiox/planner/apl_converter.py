@@ -66,6 +66,27 @@ class APLConverter:
             'guard': 'guard',
             'verify_performance': 'guard',
 
+            # Messy Data Resolution Operations
+            'resolve_conflicts': 'profile_schema',  # Map to profile until we extend APL
+            'conflict_resolution': 'profile_schema',
+            'deduplicate_customers': 'profile_schema',
+            'merge_duplicates': 'profile_schema',
+            'reconcile_data': 'profile_schema',
+            'clean_messy_data': 'profile_schema',
+
+            # Business Intelligence Operations
+            'business_insights': 'emit_report',
+            'generate_insights': 'emit_report',
+            'analyze_business_data': 'emit_report',
+            'actionable_insights': 'emit_report',
+            'risk_analysis': 'emit_report',
+
+            # Cross-Reference Operations
+            'cross_reference': 'profile_schema',
+            'validate_data': 'profile_schema',
+            'check_consistency': 'profile_schema',
+            'enterprise_validation': 'profile_schema',
+
             # Verification operations (note: these are for verify section, not main steps)
             'verify_zip': 'load_csv',  # Map to safe operation since verify ops go in verify section
             'verify_zip_integrity': 'load_csv',

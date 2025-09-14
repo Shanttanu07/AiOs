@@ -1,0 +1,34 @@
+{
+  "goal": "Enterprise data validation across multiple systems",
+  "capabilities": ["fs.read", "fs.write"],
+  "steps": [
+    {
+      "id": "load_primary",
+      "op": "read_csv",
+      "description": "Load primary customer dataset",
+      "in": "sandbox/in/crm_customers.csv",
+      "out": "$primary_data"
+    },
+    {
+      "id": "cross_validate",
+      "op": "cross_reference",
+      "description": "Cross-reference data across enterprise systems",
+      "in": {"primary_source": "$primary_data", "match_fields": ["email", "customer_id"]},
+      "out": "$validated_data"
+    },
+    {
+      "id": "generate_insights",
+      "op": "business_insights",
+      "description": "Generate business intelligence and risk analysis",
+      "in": {"customer_data": "$validated_data", "focus_areas": ["revenue", "retention", "growth"]},
+      "out": "$business_analysis"
+    },
+    {
+      "id": "create_report",
+      "op": "emit_report",
+      "description": "Create comprehensive validation report",
+      "in": {"data": "$business_analysis", "output_path": "sandbox/out/enterprise_validation.md"}
+    }
+  ],
+  "inputs": {"primary_source": "sandbox/in/crm_customers.csv"}
+}

@@ -1,0 +1,28 @@
+{
+  "goal": "Clean and analyze customer database with advanced tools",
+  "capabilities": ["fs.read", "fs.write"],
+  "steps": [
+    {
+      "id": "step1",
+      "op": "read_csv",
+      "description": "Load customer data",
+      "in": "sandbox/in/crm_customers.csv",
+      "out": "$customer_data"
+    },
+    {
+      "id": "step2",
+      "op": "resolve_conflicts",
+      "description": "Clean and deduplicate customer data",
+      "in": {"crm_data": "$customer_data"},
+      "out": "$clean_data"
+    },
+    {
+      "id": "step3",
+      "op": "business_insights",
+      "description": "Generate actionable business insights",
+      "in": {"customer_data": "$clean_data"},
+      "out": "$insights"
+    }
+  ],
+  "inputs": {"main_input": "sandbox/in/crm_customers.csv"}
+}

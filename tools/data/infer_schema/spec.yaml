@@ -1,0 +1,21 @@
+name: infer_schema
+category: data
+description: Infer schema from messy, unstructured data (CSV, JSON, text)
+capabilities: ["fs.read", "model.call"]
+
+inputs:
+  data:
+    type: any
+    description: Raw data to analyze (table, text, or mixed)
+  confidence_threshold:
+    type: number
+    description: Minimum confidence for field type inference (0.0-1.0)
+    default: 0.8
+
+outputs:
+  schema:
+    type: object
+    description: Inferred schema with field types and confidence scores
+  report:
+    type: object
+    description: Analysis report with recommendations and issues found

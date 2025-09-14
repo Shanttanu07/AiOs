@@ -1,0 +1,55 @@
+{
+  "goal": "Complete ML pipeline with data processing and model deployment",
+  "capabilities": ["fs.read", "fs.write", "proc.spawn"],
+  "steps": [
+    {
+      "id": "load_data",
+      "op": "read_csv",
+      "description": "Load training dataset",
+      "in": "sandbox/in/crm_customers.csv",
+      "out": "$dataset"
+    },
+    {
+      "id": "analyze_data",
+      "op": "profile",
+      "description": "Analyze dataset structure and quality",
+      "in": "$dataset",
+      "out": "$data_profile"
+    },
+    {
+      "id": "split_data",
+      "op": "split",
+      "description": "Split data for training and validation",
+      "in": {"table": "$dataset", "ratio": 0.8, "seed": 42},
+      "out": "$data_splits"
+    },
+    {
+      "id": "train_model",
+      "op": "train_lr",
+      "description": "Train linear regression model",
+      "in": {"train_data": "$data_splits", "target": "revenue"},
+      "out": "$trained_model"
+    },
+    {
+      "id": "evaluate_model",
+      "op": "eval",
+      "description": "Evaluate model performance",
+      "in": {"model": "$trained_model", "val_data": "$data_splits"},
+      "out": "$metrics"
+    },
+    {
+      "id": "create_cli",
+      "op": "build_cli",
+      "description": "Build prediction CLI tool",
+      "in": {"model": "$trained_model", "schema": "$data_profile"},
+      "out": "$cli_app"
+    },
+    {
+      "id": "package_deliverable",
+      "op": "zip",
+      "description": "Package complete ML pipeline",
+      "in": {"source_dir": "$cli_app", "output_path": "sandbox/out/ml_pipeline.zip"}
+    }
+  ],
+  "inputs": {"training_data": "sandbox/in/crm_customers.csv"}
+}

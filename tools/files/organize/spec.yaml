@@ -1,0 +1,28 @@
+name: organize
+category: files
+description: Intelligently organize and understand files using OCR, semantic search, and AI
+capabilities: ["fs.read", "fs.write", "ocr.run", "model.call"]
+
+inputs:
+  directory:
+    type: string
+    description: Directory path to organize
+  strategy:
+    type: string
+    description: Organization strategy (by_type, by_content, by_date, semantic)
+    default: semantic
+  create_index:
+    type: boolean
+    description: Create searchable index of file contents
+    default: true
+
+outputs:
+  organization_plan:
+    type: object
+    description: Proposed file organization structure
+  index:
+    type: object
+    description: Searchable index of file contents and metadata
+  summary:
+    type: object
+    description: Summary of files processed and organization results

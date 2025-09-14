@@ -49,6 +49,11 @@ class LLMPlanner:
         self.cache = ModelCallCache(self.sandbox_root)
         self.replay_gate = ReplayGate(self.sandbox_root)
 
+        # Generate dynamic operation list from discovered tools
+        from ..compiler.dynamic_schema import DynamicAPLSchema
+        self._schema_gen = DynamicAPLSchema(self.tools)
+        self._dynamic_operations = self._schema_gen.get_tools_by_category_for_llm()
+
     def _get_client(self) -> anthropic.Anthropic:
         """Get Anthropic client with API key"""
         if self._client is None:
@@ -84,6 +89,25 @@ class LLMPlanner:
 
         return "\n".join(tools_info)
 
+
+    def _get_dynamic_operations_prompt(self) -> str:
+        """Generate dynamic operations section for LLM prompt"""
+        lines = []
+        lines.append("AVAILABLE OPERATIONS (from discovered tools):")
+
+        for category, tool_names in self._dynamic_operations.items():
+            lines.append(f"\n{category.upper()} OPERATIONS:")
+            for tool_name in sorted(tool_names):
+                tool = self.tools.get_tool(tool_name)
+                if tool:
+                    lines.append(f"- {tool_name}: {tool.description}")
+
+        # Add standard operations that are always available
+        lines.append("\nSTANDARD OPERATIONS:")
+        lines.append("- guard: Assert conditions for validation")
+
+        return "\n".join(lines)
+
     def plan_workflow(self, goal: str, **kwargs) -> ExecutionPlan:
         """Use LLM to plan workflow for any goal"""
         client = self._get_client()
@@ -99,7 +123,25 @@ class LLMPlanner:
 
         context_str = "\n".join(context_info) if context_info else ""
 
-        prompt = f"""You are an AI workflow planner for a task-agnostic automation system. Your job is to analyze a user's goal and create an execution plan using available tools.
+        # Get dynamic operations prompt
+        operations_prompt = self._get_dynamic_operations_prompt()
+
+        prompt = f"""You are an AI workflow planner for a TASK-AGNOSTIC automation system. Your job is to analyze ANY type of user goal and create an execution plan using available tools.
+
+SUPPORTED TASK CATEGORIES:
+- Data Processing & Analysis (any data type: CSV, JSON, text, images)
+- Messy Data Resolution & Conflict Resolution
+- Business Intelligence & Actionable Insights
+- Cross-System Data Validation & Enterprise Integration
+- Web Research & Information Gathering
+- File Organization & Management (OCR, semantic search, AI understanding)
+- Visualization & Dashboard Creation
+- Voice-Driven Automation (speech-to-text, intent detection)
+- Design & Content Creation
+- Financial Analysis & Reporting
+- Research & Knowledge Extraction
+- Document Processing & Understanding
+- General Automation & Workflows
 
 {tools_context}
 
@@ -107,18 +149,26 @@ class LLMPlanner:
 
 User Goal: {goal}
 
-CRITICAL: Your response will be converted to APL (Agent Plan Language) format. You MUST use only these exact operation names:
-- load_csv (for reading CSV files)
-- profile_schema (for data analysis/profiling)
-- split_deterministic (for data splitting)
-- train_linear (for training models)
-- eval_metrics (for model evaluation)
-- emit_report (for generating reports)
-- build_cli (for building CLI tools)
-- bundle_zip (for creating zip files)
-- guard (for assertions/conditions)
+CRITICAL: Your response will be converted to APL (Agent Plan Language) format. You MUST use only the operation names from the list below:
 
-Please create a step-by-step execution plan and respond with ONLY a JSON object with this exact structure:
+{operations_prompt}
+
+ADVANCED OPERATIONS USAGE:
+For messy data and business intelligence tasks, you can now use specialized operations:
+- resolve_conflicts: For deduplication, conflict resolution, and data reconciliation
+- business_insights: For generating actionable business recommendations and risk analysis
+- cross_reference: For data validation and consistency checking across systems
+
+IMPORTANT: Be creative and task-agnostic! The goal could be:
+- "Research renewable energy trends and create a summary report"
+- "Organize my messy file directory using AI"
+- "Analyze website traffic data and recommend optimizations"
+- "Create a financial dashboard from expense reports"
+- "Convert voice commands into automated workflows"
+- "Generate design mockups for a mobile app"
+- Or any other automation task!
+
+CRITICAL: You must respond with ONLY a JSON object using this EXACT structure:
 {{
   "goal_analysis": {{
     "intent": "brief description of what user wants",
@@ -128,10 +178,10 @@ Please create a step-by-step execution plan and respond with ONLY a JSON object 
   "steps": [
     {{
       "id": "step1",
-      "tool": "exact_apl_operation_name",
+      "op": "exact_apl_operation_name",
       "description": "what this step does",
-      "inputs": {{"param": "value or $variable"}},
-      "outputs": {{"result_name": "$variable_name"}}
+      "in": "input_reference_or_$variable",
+      "out": "$output_variable_name"
     }}
   ],
   "inputs": {{"main_input": "expected input file or data"}},
@@ -139,8 +189,50 @@ Please create a step-by-step execution plan and respond with ONLY a JSON object 
   "capabilities": ["fs.read", "fs.write", "proc.spawn"]
 }}
 
+STEP FORMAT EXAMPLE for "Clean and analyze customer database":
+{{
+  "steps": [
+    {{
+      "id": "step1",
+      "op": "read_csv",
+      "description": "Load customer data",
+      "in": "sandbox/in/crm_customers.csv",
+      "out": "$customer_data"
+    }},
+    {{
+      "id": "step2",
+      "op": "resolve_conflicts",
+      "description": "Clean and deduplicate customer data",
+      "in": {{"crm_data": "$customer_data"}},
+      "out": "$clean_data"
+    }},
+    {{
+      "id": "step3",
+      "op": "business_insights",
+      "description": "Generate actionable business insights",
+      "in": {{"customer_data": "$clean_data"}},
+      "out": "$insights"
+    }}
+  ]
+}}
+
+CRITICAL OPERATION NAME MAPPING:
+- For loading CSV files: use "read_csv" (NOT "load_csv")
+- For data profiling/analysis: use "profile" (NOT "profile_schema")
+- For ML training: use "train_lr" (NOT "train_linear")
+- For model evaluation: use "eval" (NOT "eval_metrics")
+- For file compression: use "zip" (NOT "bundle_zip")
+- For assertions: use "assert_ge" (NOT "guard")
+
+REQUIREMENTS:
+- Use "op" field with exact APL operation names from the discovered tools list
+- Every step needs "in" and "out" fields
+- Use the most appropriate operation for the task (not limited to basic operations)
+- For complex data: use resolve_conflicts for cleaning, business_insights for analysis
+- For simple data: use profile for basic analysis, emit_report for simple reports
+
 Important constraints:
-- ONLY use the exact APL operation names listed above
+- ONLY use operation names from the AVAILABLE OPERATIONS list above
 - Use $ variables to connect outputs from one step to inputs of the next
 - For file paths, use sandbox/in/ for inputs and sandbox/out/ for outputs
 - Do not add extra fields like "cleanup", "guards", or "_planner_metadata"
@@ -226,11 +318,33 @@ Important constraints:
         # Convert steps
         steps = []
         for step_data in plan_data.get("steps", []):
+            # Use 'op' field from LLM response, not 'tool'
+            operation = step_data.get("op", step_data.get("tool", "unknown"))
+
+            # Handle different input formats
+            step_inputs = step_data.get("in", step_data.get("inputs", {}))
+            if isinstance(step_inputs, str):
+                # Convert string input to dict
+                if step_inputs.startswith("$"):
+                    step_inputs = {"data": step_inputs}
+                else:
+                    step_inputs = {"input": step_inputs}
+            elif not isinstance(step_inputs, dict):
+                step_inputs = {"input": step_inputs}
+
+            # Handle different output formats
+            step_outputs = step_data.get("out", step_data.get("outputs", {}))
+            if isinstance(step_outputs, str):
+                # Convert string output to dict
+                step_outputs = {"result": step_outputs}
+            elif not isinstance(step_outputs, dict):
+                step_outputs = {"result": step_outputs}
+
             step = PlanStep(
                 id=step_data.get("id", f"step{len(steps)+1}"),
-                tool=step_data.get("tool", "unknown"),
-                inputs=step_data.get("inputs", {}),
-                outputs=step_data.get("outputs", {}),
+                tool=operation,  # Use operation name as tool name
+                inputs=step_inputs,
+                outputs=step_outputs,
                 description=step_data.get("description", "")
             )
             steps.append(step)

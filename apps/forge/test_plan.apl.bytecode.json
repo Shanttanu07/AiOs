@@ -1,0 +1,46 @@
+{
+  "program": [
+    [
+      "CALL_TOOL",
+      "read_csv",
+      {
+        "input": "sandbox/in/crm_customers.csv"
+      },
+      {
+        "result": "$customer_data"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "resolve_conflicts",
+      {
+        "crm_data": "$customer_data"
+      },
+      {
+        "result": "$clean_data"
+      }
+    ],
+    [
+      "CALL_TOOL",
+      "business_insights",
+      {
+        "customer_data": "$clean_data"
+      },
+      {
+        "result": "$insights"
+      }
+    ]
+  ],
+  "capabilities": [
+    "fs.read",
+    "fs.write"
+  ],
+  "slots": {},
+  "metadata": {
+    "goal": "Clean and analyze customer database with advanced tools",
+    "inputs": {
+      "main_input": "sandbox/in/crm_customers.csv"
+    },
+    "compilation_mode": "tools"
+  }
+}

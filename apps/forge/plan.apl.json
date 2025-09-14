@@ -1,89 +1,74 @@
 {
-  "goal": "Build a house price predictor from data.csv",
+  "goal": "Clean and analyze customer database",
   "capabilities": [
     "fs.read",
-    "fs.write",
-    "proc.spawn"
+    "fs.write"
   ],
   "steps": [
     {
       "id": "step1",
       "op": "load_csv",
-      "description": "Load housing dataset",
-      "in": "sandbox/in/housing.csv",
-      "out": "$housing_data"
+      "description": "Load raw customer data from CRM CSV",
+      "in": "sandbox/in/crm_customers.csv",
+      "out": "$raw_customer_data"
     },
     {
       "id": "step2",
       "op": "profile_schema",
-      "description": "Analyze dataset structure",
-      "in": "$housing_data",
+      "description": "Generate metadata and analyze dataset schema",
+      "in": "$raw_customer_data",
       "out": "$data_schema"
     },
     {
       "id": "step3",
-      "op": "split_deterministic",
-      "description": "Split data into train and validation sets",
-      "in": "$housing_data",
-      "out": "$train_data",
-      "args": {
-        "ratio": 0.8,
-        "seed": 1337
-      }
+      "op": "profile_schema",
+      "description": "Deduplicate and reconcile customer records",
+      "in": {
+        "crm_data": "$raw_customer_data",
+        "confidence_threshold": 0.75
+      },
+      "out": "$clean_customer_data"
     },
     {
       "id": "step4",
-      "op": "train_linear",
-      "description": "Train linear regression model",
+      "op": "profile_schema",
+      "description": "Validate data consistency across enterprise systems",
       "in": {
-        "train_data": "$train_data",
-        "target": "price"
+        "primary_source": "$clean_customer_data",
+        "reference_sources": [],
+        "match_fields": [
+          "email",
+          "customer_id"
+        ],
+        "validation_rules": {}
       },
-      "out": "$price_model"
+      "out": "$validated_customer_data"
     },
     {
       "id": "step5",
-      "op": "eval_metrics",
-      "description": "Evaluate model performance",
+      "op": "emit_report",
+      "description": "Generate actionable business recommendations",
       "in": {
-        "model": "$price_model",
-        "val_data": "$val_data",
-        "target": "price"
+        "customer_data": "$validated_customer_data",
+        "focus_areas": [
+          "revenue",
+          "customer_retention"
+        ]
       },
-      "out": "$model_metrics"
+      "out": "$customer_insights"
     },
     {
       "id": "step6",
       "op": "emit_report",
-      "description": "Generate model performance report",
+      "description": "Create markdown report of findings",
       "in": {
         "schema": "$data_schema",
-        "metrics": "$model_metrics",
-        "output_path": "sandbox/out/model_report.md"
-      }
-    },
-    {
-      "id": "step7",
-      "op": "build_cli",
-      "description": "Create CLI for house price prediction",
-      "in": {
-        "model": "$price_model",
-        "schema": "$data_schema",
-        "output_dir": "sandbox/out/price_predictor_cli"
-      }
-    },
-    {
-      "id": "step8",
-      "op": "bundle_zip",
-      "description": "Package predictor as distributable zip",
-      "in": {
-        "source_dir": "sandbox/out/price_predictor_cli",
-        "output_path": "sandbox/out/house_price_predictor.zip"
+        "metrics": "$customer_insights"
       }
     }
   ],
   "inputs": {
-    "main_input": "sandbox/in/housing.csv"
+    "main_input": "sandbox/in/crm_customers.csv"
   },
-  "_generated_at": "2025-09-14T03:19:22Z"
+  "_generated_at": "2025-09-14T10:08:51Z"
 }

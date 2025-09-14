@@ -2,7 +2,7 @@
   "program": [
     [
       "READ_CSV",
-      "sandbox/in/housing.csv",
+      "sandbox/in/crm_customers.csv",
       "S0"
     ],
     [
@@ -11,60 +11,24 @@
       "S1"
     ],
     [
-      "SPLIT",
-      "S0",
-      0.8,
-      1337,
-      "S2",
-      "S3"
-    ],
-    [
-      "TRAIN_LR",
-      "S2",
-      "price",
-      "S4"
-    ],
-    [
-      "EVAL",
-      "S4",
-      "S3",
-      "S5"
-    ],
-    [
-      "EMIT_REPORT",
+      "ASSERT_GE",
       "S1",
-      "S5",
-      "sandbox/out/model_report.md"
-    ],
-    [
-      "BUILD_CLI",
-      "S4",
-      "S1",
-      "sandbox/out/price_predictor_cli"
-    ],
-    [
-      "ZIP",
-      "sandbox/out/price_predictor_cli",
-      "sandbox/out/house_price_predictor.zip"
+      "rows_count",
+      1.0
     ]
   ],
   "capabilities": [
     "fs.read",
-    "fs.write",
-    "proc.spawn"
+    "fs.write"
   ],
   "slots": {
-    "housing_data": "S0",
-    "data_schema": "S1",
-    "train_data": "S2",
-    "val_data": "S3",
-    "price_model": "S4",
-    "model_metrics": "S5"
+    "customer_data": "S0",
+    "data_profile": "S1"
   },
   "metadata": {
-    "goal": "Build a house price predictor from data.csv",
+    "goal": "Clean and analyze customer database",
     "inputs": {
-      "main_input": "sandbox/in/housing.csv"
+      "main_input": "sandbox/in/crm_customers.csv"
     },
     "compilation_mode": "legacy"
   }

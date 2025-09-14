@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 from jsonschema import Draft202012Validator
 from .opcodes import OP_SET, OPCODES, LEGACY_TO_TOOL
+from .dynamic_schema import DynamicAPLSchema
+from ..kernel.tools import ToolRegistry
 
 # ---------- helpers ----------
 
@@ -55,7 +57,16 @@ def lower_steps(plan: Dict[str, Any], use_tools: bool = False) -> Tuple[List[Lis
             prog.append(["PROFILE", in_reg, out_reg])
 
         elif op == "split_deterministic":
-            in_reg = st.slot_of(step["in"])
+            # Handle both simple and complex input formats
+            step_in = step["in"]
+            if isinstance(step_in, dict):
+                # Complex format: {"table": "$raw_data", "target": "revenue"}
+                in_reg = st.slot_of(step_in.get("table", "$raw_data"))
+                # Target is handled by the operation itself
+            else:
+                # Simple format: "$raw_data"
+                in_reg = st.slot_of(step_in)
+
             args = step.get("args", {})
             ratio = float(args.get("ratio", 0.8))
             seed  = int(args.get("seed", 1337))
@@ -156,7 +167,12 @@ def lower_steps(plan: Dict[str, Any], use_tools: bool = False) -> Tuple[List[Lis
             prog.append(instr)
 
         else:
-            raise ValueError(f"Unsupported APL op in v1: {op}")
+            if use_tools:
+                # In tools mode, defer to convert_to_tool_calls for unknown operations
+                # Create a placeholder instruction that will be converted to CALL_TOOL
+                prog.append(["CALL_TOOL_PLACEHOLDER", op, step])
+            else:
+                raise ValueError(f"Unsupported APL op in v1: {op}")
 
     # lower verify steps
     for v in plan.get("verify", []):
@@ -232,12 +248,47 @@ def convert_to_tool_calls(program: List[List[Any]], slots: Dict[str, str]) -> Li
     converted = []
 
     for instr in program:
-        if not instr or instr[0] not in LEGACY_TO_TOOL:
+        if not instr:
+            continue
+
+        opcode = instr[0]
+
+        # Handle CALL_TOOL_PLACEHOLDER instructions (for dynamic tools)
+        if opcode == "CALL_TOOL_PLACEHOLDER":
+            tool_name, step = instr[1], instr[2]
+            # Convert APL step to CALL_TOOL instruction
+            inputs = step.get("in", {})
+
+            # Handle different input formats
+            if isinstance(inputs, str):
+                # Simple string input like "$data"
+                if inputs.startswith("$"):
+                    # This is a variable reference, keep as-is
+                    inputs = {"data": inputs}
+                else:
+                    # This is a file path
+                    inputs = {"input": inputs}
+            elif isinstance(inputs, dict):
+                # Already a dictionary of inputs
+                pass
+            else:
+                inputs = {"input": inputs}
+
+            # Extract output variable
+            outputs = {}
+            step_out = step.get("out", "")
+            if step_out and step_out.startswith("$"):
+                # Use the step output as the primary output
+                outputs = {"result": step_out}
+
+            converted.append(["CALL_TOOL", tool_name, inputs, outputs])
+            continue
+
+        if opcode not in LEGACY_TO_TOOL:
             # Keep non-legacy instructions as-is
             converted.append(instr)
             continue
 
-        opcode = instr[0]
         tool_name = LEGACY_TO_TOOL[opcode]
 
         # Convert arguments to inputs/outputs format
@@ -326,13 +377,26 @@ def convert_to_tool_calls(program: List[List[Any]], slots: Dict[str, str]) -> Li
 
 # ---------- main ----------
 
-def compile_plan_file(plan_path: Path, out_path: Path = None, schema_path: Path = None, use_tools: bool = False):
+def compile_plan_file(plan_path: Path, out_path: Path = None, schema_path: Path = None, use_tools: bool = False, tools_root: Path = None):
     """Compile a plan file to bytecode"""
-    if schema_path is None:
-        schema_path = Path(__file__).parent / "schema.json"
-
-    schema = load_json(schema_path)
     plan = load_json(plan_path)
+
+    if schema_path is None or not schema_path.exists():
+        # Use dynamic schema generation
+        if tools_root is None:
+            tools_root = Path(__file__).parent.parent.parent / "tools"
+
+        tools_registry = ToolRegistry(tools_root)
+        tools_registry.discover_tools()
+
+        dynamic_schema = DynamicAPLSchema(tools_registry)
+        schema = dynamic_schema.generate_schema()
+
+        print(f"[compiler] Using dynamic schema with {len(schema['$defs']['step']['properties']['op']['enum'])} operations")
+    else:
+        # Fallback to static schema file
+        schema = load_json(schema_path)
+        print(f"[compiler] Using static schema from {schema_path}")
 
     # schema validation
     Draft202012Validator(schema).validate(plan)
@@ -377,13 +441,15 @@ def main():
     ap.add_argument("-s","--schema", default="compiler/schema.json", help="Path to APL JSON Schema")
     ap.add_argument("-o","--out", default=None, help="Output bytecode path (default: alongside plan)")
     ap.add_argument("--tools", action="store_true", help="Use tool-based compilation (CALL_TOOL)")
+    ap.add_argument("--tools-root", default=None, help="Path to tools directory (default: auto-detect)")
     args = ap.parse_args()
 
     plan_path = Path(args.plan)
-    schema_path = Path(args.schema)
+    schema_path = Path(args.schema) if args.schema else None
     out_path = Path(args.out) if args.out else None
+    tools_root = Path(args.tools_root) if args.tools_root else None
 
-    compile_plan_file(plan_path, out_path, schema_path, use_tools=args.tools)
+    compile_plan_file(plan_path, out_path, schema_path, use_tools=args.tools, tools_root=tools_root)
 
 if __name__ == "__main__":
     main()

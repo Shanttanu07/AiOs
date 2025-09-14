@@ -1,0 +1,52 @@
+{
+  "servers": {
+    "google_calendar": {
+      "name": "Google Calendar",
+      "url": "ws://localhost:3001/mcp",
+      "auth_token": null,
+      "enabled": true,
+      "capabilities": ["calendar.read", "calendar.write", "calendar.events"],
+      "tools_prefix": "gcal_"
+    },
+    "gmail": {
+      "name": "Gmail",
+      "url": "ws://localhost:3002/mcp",
+      "auth_token": null,
+      "enabled": true,
+      "capabilities": ["email.read", "email.send", "email.search"],
+      "tools_prefix": "gmail_"
+    },
+    "notion": {
+      "name": "Notion",
+      "url": "ws://localhost:3003/mcp",
+      "auth_token": null,
+      "enabled": true,
+      "capabilities": ["notion.read", "notion.write", "notion.search"],
+      "tools_prefix": "notion_"
+    },
+    "slack": {
+      "name": "Slack",
+      "url": "ws://localhost:3004/mcp",
+      "auth_token": null,
+      "enabled": true,
+      "capabilities": ["slack.messages", "slack.channels", "slack.users"],
+      "tools_prefix": "slack_"
+    },
+    "salesforce": {
+      "name": "Salesforce",
+      "url": "ws://localhost:3005/mcp",
+      "auth_token": null,
+      "enabled": false,
+      "capabilities": ["crm.read", "crm.write", "crm.analytics"],
+      "tools_prefix": "sf_"
+    },
+    "jira": {
+      "name": "Jira",
+      "url": "ws://localhost:3006/mcp",
+      "auth_token": null,
+      "enabled": false,
+      "capabilities": ["project.read", "project.write", "project.analytics"],
+      "tools_prefix": "jira_"
+    }
+  }
+}

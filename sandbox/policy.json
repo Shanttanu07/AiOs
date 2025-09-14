@@ -18,6 +18,15 @@
     "82a4a51929b3": {
       "fs.read": true,
       "fs.write": true
+    },
+    "4a9a5aaacefc": {
+      "fs.read": true
+    },
+    "a542155436a4": {
+      "fs.read": true
+    },
+    "e41f4ff57dae": {
+      "fs.read": true
     }
   },
   "limits": {

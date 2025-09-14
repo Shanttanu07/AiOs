@@ -1,0 +1,39 @@
+{
+  "name": "business_insights",
+  "category": "analyze",
+  "description": "Generate actionable business insights and recommendations from customer data",
+  "inputs": {
+    "customer_data": {
+      "type": "table",
+      "description": "Unified customer database with reconciled information"
+    },
+    "conflict_report": {
+      "type": "object",
+      "description": "Data quality and conflict resolution report"
+    },
+    "focus_areas": {
+      "type": "array",
+      "description": "Business areas to focus analysis on",
+      "default": ["revenue", "retention", "satisfaction", "growth"]
+    }
+  },
+  "outputs": {
+    "executive_summary": {
+      "type": "object",
+      "description": "High-level business insights and KPIs"
+    },
+    "action_items": {
+      "type": "array",
+      "description": "Prioritized list of actionable recommendations"
+    },
+    "risk_analysis": {
+      "type": "object",
+      "description": "Revenue and customer risks with mitigation strategies"
+    },
+    "opportunities": {
+      "type": "array",
+      "description": "Growth and upsell opportunities identified"
+    }
+  },
+  "capabilities": ["fs.read", "fs.write"]
+}

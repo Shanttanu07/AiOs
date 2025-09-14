@@ -1,0 +1,21 @@
+name: recommend
+category: viz
+description: Recommend optimal chart types and visualizations for data
+capabilities: ["fs.write", "model.call"]
+
+inputs:
+  data:
+    type: object
+    description: Data to visualize (table format with header and rows)
+  context:
+    type: string
+    description: Context or purpose of the visualization
+    default: general
+
+outputs:
+  recommendations:
+    type: array
+    description: List of recommended chart types with justifications
+  preview_config:
+    type: object
+    description: Configuration for generating the recommended chart

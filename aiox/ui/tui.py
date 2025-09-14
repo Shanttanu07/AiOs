@@ -97,9 +97,27 @@ class ActivityUI:
         self._render_policy(policy_win)
         self._render_logs(logs_win)
 
+        # Header with carbon footprint
+        current_stats = self.meter.get_current_run_stats()
+        co2_grams = current_stats.get('total_co2_grams', 0) if current_stats["status"] == "active_run" else 0
+        cost_usd = current_stats.get('total_cost_usd', 0) if current_stats["status"] == "active_run" else 0
+
+        # Create header with carbon info
+        header_text = " AI-OS :: Task-Agnostic Automation Platform "
+        carbon_info = f" CO2: {co2_grams:.1f}g | Cost: ${cost_usd:.4f} "
+
+        # Center main header
+        self.stdscr.addstr(0, 2, header_text.center(w-4))
+
+        # Add carbon info in top-right if there's space
+        if len(carbon_info) < w - len(header_text) - 4:
+            try:
+                self.stdscr.addstr(0, w - len(carbon_info) - 2, carbon_info)
+            except curses.error:
+                pass
+
         # footer
         footer = "[g]enerate plan [v]iew DAG [d]ry-run [e]xecute [p]ack [r]eplay [u]ndo [c]ost analysis [q]uit"
-        self.stdscr.addstr(0, 2, f" AI-OS :: Agent Activity Monitor ".center(w-4))
         self.stdscr.addstr(h-1, 1, (self.status + "  " + footer)[:w-2])
 
         self.stdscr.refresh()

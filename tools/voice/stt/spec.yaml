@@ -1,0 +1,24 @@
+name: stt
+category: voice
+description: Convert speech to text for voice-driven automation
+capabilities: ["fs.read", "proc.spawn"]
+
+inputs:
+  audio_path:
+    type: string
+    description: Path to audio file (WAV, MP3, etc.)
+  language:
+    type: string
+    description: Language code for transcription (en, es, fr, etc.)
+    default: en
+
+outputs:
+  text:
+    type: string
+    description: Transcribed text from audio
+  confidence:
+    type: number
+    description: Confidence score of transcription (0.0-1.0)
+  metadata:
+    type: object
+    description: Additional transcription metadata

@@ -1,0 +1,39 @@
+{
+  "name": "resolve_conflicts",
+  "category": "data",
+  "description": "Intelligently resolve conflicts in messy customer data using fuzzy matching and data reconciliation",
+  "inputs": {
+    "crm_data": {
+      "type": "table",
+      "description": "CRM customer data with potential duplicates"
+    },
+    "support_data": {
+      "type": "table",
+      "description": "Support ticket data with unstructured customer info"
+    },
+    "payment_data": {
+      "type": "table",
+      "description": "Payment records that may be orphaned"
+    },
+    "confidence_threshold": {
+      "type": "number",
+      "description": "Matching confidence threshold (0.0-1.0)",
+      "default": 0.8
+    }
+  },
+  "outputs": {
+    "unified_customers": {
+      "type": "table",
+      "description": "Deduplicated and reconciled customer data"
+    },
+    "conflict_report": {
+      "type": "object",
+      "description": "Detailed conflict resolution report with actions taken"
+    },
+    "orphaned_records": {
+      "type": "table",
+      "description": "Records that couldn't be matched"
+    }
+  },
+  "capabilities": ["fs.read", "fs.write"]
+}

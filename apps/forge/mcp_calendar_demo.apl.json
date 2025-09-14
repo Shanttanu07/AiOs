@@ -1,0 +1,37 @@
+{
+  "goal": "Analyze calendar data and generate productivity insights",
+  "capabilities": ["mcp.call", "calendar.read", "fs.write"],
+  "steps": [
+    {
+      "id": "fetch_events",
+      "op": "gcal_get_events",
+      "description": "Fetch recent calendar events from Google Calendar",
+      "in": {
+        "start_date": "2025-01-01",
+        "end_date": "2025-01-31",
+        "calendar_id": "primary"
+      },
+      "out": "$calendar_events"
+    },
+    {
+      "id": "analyze_patterns",
+      "op": "business_insights",
+      "description": "Analyze meeting patterns and productivity trends",
+      "in": {
+        "customer_data": "$calendar_events",
+        "focus_areas": ["productivity", "meeting_efficiency", "time_management"]
+      },
+      "out": "$productivity_insights"
+    },
+    {
+      "id": "generate_report",
+      "op": "emit_report",
+      "description": "Create productivity report with recommendations",
+      "in": {
+        "data": "$productivity_insights",
+        "output_path": "sandbox/out/productivity_report.md"
+      }
+    }
+  ],
+  "inputs": {"calendar_id": "primary"}
+}

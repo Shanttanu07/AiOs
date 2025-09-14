@@ -1,0 +1,55 @@
+{"op": "RUN_START", "ts": 1757840019.6982765, "dry_run": false, "run_id": "run-1757840019697"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757840019.6993363, "dry_run": false, "run_id": "run-1757840019697"}
+{"op": "RUN_START", "ts": 1757840096.669413, "dry_run": false, "run_id": "run-1757840096669"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757840096.6704273, "dry_run": false, "run_id": "run-1757840096669"}
+{"op": "RUN_START", "ts": 1757840125.26358, "dry_run": false, "run_id": "run-1757840125263"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757840125.2645779, "dry_run": false, "run_id": "run-1757840125263"}
+{"op": "RUN_START", "ts": 1757840190.4848983, "dry_run": false, "run_id": "run-1757840190484"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757840190.4872673, "dry_run": false, "run_id": "run-1757840190484"}
+{"op": "RUN_START", "ts": 1757840217.203345, "dry_run": false, "run_id": "run-1757840217202"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757840217.2043474, "dry_run": false, "run_id": "run-1757840217202"}
+{"op": "RUN_START", "ts": 1757840442.4412599, "dry_run": false, "run_id": "run-1757840442441"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757840442.44326, "dry_run": false, "run_id": "run-1757840442441"}
+{"op": "RUN_START", "ts": 1757840508.2245893, "dry_run": false, "run_id": "run-1757840508224"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757840508.2255826, "dry_run": false, "run_id": "run-1757840508224"}
+{"op": "RUN_START", "ts": 1757840570.9374602, "dry_run": false, "run_id": "run-1757840570937"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757840570.9384482, "dry_run": false, "run_id": "run-1757840570937"}
+{"op": "RUN_START", "ts": 1757840612.145376, "dry_run": false, "run_id": "run-1757840612145"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757840612.1463668, "dry_run": false, "run_id": "run-1757840612145"}
+{"op": "RUN_START", "ts": 1757840645.1563795, "dry_run": false, "run_id": "run-1757840645155"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757840645.1613736, "dry_run": false, "run_id": "run-1757840645155"}
+{"op": "RUN_START", "ts": 1757840680.6273863, "dry_run": false, "run_id": "run-1757840680627"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757840680.6284282, "dry_run": false, "run_id": "run-1757840680627"}
+{"op": "WRITE_FILE", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\customer_insights_report.md", "pre_exists": false, "created": true, "hash": "503c5a62401b793b339187c96565d0b6f31a71a68d0882a0b6266eee8bce97df", "ts": 1757840680.6493537, "dry_run": false, "run_id": "run-1757840680627"}
+{"op": "MAKE_DIR", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor_cli", "pre_exists": false, "created": true, "ts": 1757840680.6524777, "dry_run": false, "run_id": "run-1757840680627"}
+{"op": "WRITE_JSON", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor_cli\\model.npz", "pre_exists": false, "created": true, "hash": "7051a837c122f95e5ceb678b61f568bbe34da9732811cb8586522b7b22b08651", "ts": 1757840680.6673183, "dry_run": false, "run_id": "run-1757840680627"}
+{"op": "WRITE_JSON", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor_cli\\schema.json", "pre_exists": false, "created": true, "hash": "8d6f321433f191f3f2d1f078107a6d63b55545be5102478ba4e6f7f73e57ae81", "ts": 1757840680.6923609, "dry_run": false, "run_id": "run-1757840680627"}
+{"op": "WRITE_FILE", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor_cli\\predict.py", "pre_exists": false, "created": true, "hash": "a1523e1a4798a1a2ebbb00cc221be5de655c3f6b0edf5a7b094aabfbe3473ccd", "ts": 1757840680.6993155, "dry_run": false, "run_id": "run-1757840680627"}
+{"op": "ZIP", "src": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out", "dest": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\customer_analysis_package.zip", "pre_exists": false, "created": true, "hash": "14fd0896eb92ac665c5bf3fb295079090643c582c84ab8c8a4f874731a04aa1d", "ts": 1757840680.7579415, "dry_run": false, "run_id": "run-1757840680627"}
+{"op": "RUN_END", "ts": 1757840680.7579415, "dry_run": false, "run_id": "run-1757840680627"}
+{"op": "WRITE_CHECKSUMS", "path": "out\\checksums.json", "count": 0, "ts": 1757840680.7589445, "dry_run": false, "run_id": "run-1757840680627"}
+{"op": "RUN_START", "ts": 1757841454.110332, "dry_run": false, "run_id": "run-1757841454109"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757841454.1123757, "dry_run": false, "run_id": "run-1757841454109"}
+{"op": "WRITE_FILE", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\customer_analysis_report.md", "pre_exists": false, "created": true, "hash": "503c5a62401b793b339187c96565d0b6f31a71a68d0882a0b6266eee8bce97df", "ts": 1757841454.12026, "dry_run": false, "run_id": "run-1757841454109"}
+{"op": "MAKE_DIR", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor", "pre_exists": false, "created": true, "ts": 1757841454.1232715, "dry_run": false, "run_id": "run-1757841454109"}
+{"op": "WRITE_JSON", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor\\model.npz", "pre_exists": false, "created": true, "hash": "7051a837c122f95e5ceb678b61f568bbe34da9732811cb8586522b7b22b08651", "ts": 1757841454.1289113, "dry_run": false, "run_id": "run-1757841454109"}
+{"op": "WRITE_JSON", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor\\schema.json", "pre_exists": false, "created": true, "hash": "8d6f321433f191f3f2d1f078107a6d63b55545be5102478ba4e6f7f73e57ae81", "ts": 1757841454.1348104, "dry_run": false, "run_id": "run-1757841454109"}
+{"op": "WRITE_FILE", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor\\predict.py", "pre_exists": false, "created": true, "hash": "a1523e1a4798a1a2ebbb00cc221be5de655c3f6b0edf5a7b094aabfbe3473ccd", "ts": 1757841454.1407998, "dry_run": false, "run_id": "run-1757841454109"}
+{"op": "ZIP", "src": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out", "dest": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\customer_analysis_package.zip", "pre_exists": true, "created": false, "hash": "13db146d50f6437344c04d9bbfb02e91435985c90a3a67da7836cf1071acdf4d", "ts": 1757841454.1939015, "dry_run": false, "run_id": "run-1757841454109"}
+{"op": "RUN_END", "ts": 1757841454.1949155, "dry_run": false, "run_id": "run-1757841454109"}
+{"op": "WRITE_CHECKSUMS", "path": "out\\checksums.json", "count": 1, "ts": 1757841454.1998043, "dry_run": false, "run_id": "run-1757841454109"}
+{"op": "RUN_START", "ts": 1757841765.826731, "dry_run": false, "run_id": "run-1757841765826"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757841765.8287227, "dry_run": false, "run_id": "run-1757841765826"}
+{"op": "WRITE_FILE", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\customer_analysis_report.md", "pre_exists": true, "created": false, "hash": "503c5a62401b793b339187c96565d0b6f31a71a68d0882a0b6266eee8bce97df", "ts": 1757841765.8337295, "dry_run": false, "run_id": "run-1757841765826"}
+{"op": "MAKE_DIR", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor", "pre_exists": true, "created": false, "ts": 1757841765.8347332, "dry_run": false, "run_id": "run-1757841765826"}
+{"op": "WRITE_JSON", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor\\model.npz", "pre_exists": true, "created": false, "hash": "7051a837c122f95e5ceb678b61f568bbe34da9732811cb8586522b7b22b08651", "ts": 1757841765.8397334, "dry_run": false, "run_id": "run-1757841765826"}
+{"op": "WRITE_JSON", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor\\schema.json", "pre_exists": true, "created": false, "hash": "8d6f321433f191f3f2d1f078107a6d63b55545be5102478ba4e6f7f73e57ae81", "ts": 1757841765.8464491, "dry_run": false, "run_id": "run-1757841765826"}
+{"op": "WRITE_FILE", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\revenue_predictor\\predict.py", "pre_exists": true, "created": false, "hash": "a1523e1a4798a1a2ebbb00cc221be5de655c3f6b0edf5a7b094aabfbe3473ccd", "ts": 1757841765.8515432, "dry_run": false, "run_id": "run-1757841765826"}
+{"op": "ZIP", "src": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out", "dest": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\out\\customer_analysis_package.zip", "pre_exists": true, "created": false, "hash": "13db146d50f6437344c04d9bbfb02e91435985c90a3a67da7836cf1071acdf4d", "ts": 1757841765.9004505, "dry_run": false, "run_id": "run-1757841765826"}
+{"op": "RUN_END", "ts": 1757841765.9015558, "dry_run": false, "run_id": "run-1757841765826"}
+{"op": "WRITE_CHECKSUMS", "path": "out\\checksums.json", "count": 1, "ts": 1757841765.9265544, "dry_run": false, "run_id": "run-1757841765826"}
+{"op": "RUN_START", "ts": 1757842119.0608296, "dry_run": false, "run_id": "run-1757842119060"}
+{"op": "READ_CSV", "path": "C:\\Users\\Shanttanu\\my-aios\\sandbox\\in\\crm_customers.csv", "rows": 8, "ts": 1757842119.0627797, "dry_run": false, "run_id": "run-1757842119060"}
+{"op": "ASSERT_GE", "field": "rows_count", "value": 8.0, "threshold": 1.0, "ok": true, "ts": 1757842119.063296, "dry_run": false, "run_id": "run-1757842119060"}
+{"op": "RUN_END", "ts": 1757842119.063296, "dry_run": false, "run_id": "run-1757842119060"}
+{"op": "WRITE_CHECKSUMS", "path": "out\\checksums.json", "count": 1, "ts": 1757842119.0793228, "dry_run": false, "run_id": "run-1757842119060"}
